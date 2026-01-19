@@ -1,3 +1,9 @@
 packages:
-  - "notebook/*"
-  - "aiChat/*"
+  - app/*
+  - aiChat/*
+  - packages/*
+
+ignoredBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - less

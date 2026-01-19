@@ -1,0 +1,19 @@
+{
+    "name": "@repo/qiniu",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./uploadBundleQiniu.ts",
+    "types": "./uploadBundleQiniu.ts",
+    "dependencies": {
+        "mime-types": "^2.1.35",
+        "qiniu": "^7.14.0"
+    },
+    "devDependencies": {
+        "rollup": "^4.0.0",
+        "@types/mime-types": "^2.1.4",
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0",
+        "vite": "^7.2.2"
+    }
+}
