@@ -25,6 +25,7 @@ const loadPage = async (path: string) => {
     }
 };
 // dynamicImport: () => Promise<{ default: ComponentType<any> }>
+
 const adminRouters = [{
     path: 'upload',
     lazy: async () => {
