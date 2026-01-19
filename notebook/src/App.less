@@ -1,0 +1,24 @@
+* {
+  box-sizing: border-box;
+  font-family: Microsoft YaHei
+}
+
+body {
+  margin: 0px;
+}
+
+
+html {
+  scrollbar-gutter: stable;
+  height: 100%;
+}
+
+html::-webkit-scrollbar {
+  width: 0px;
+  height: 0;
+}
+
+body:has(.aiChatWrapper:hover) {
+  overflow: hidden;
+  /* 锁死 body */
+}

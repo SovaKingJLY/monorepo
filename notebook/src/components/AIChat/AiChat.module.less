@@ -1,0 +1,88 @@
+:global(.aiChatWrapper) {
+    // 建议给个固定宽，vh/vw 在小屏上可能会太小
+    width: 300px;
+    height: 400px;
+    position: fixed;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+
+    // 关键：设置变换原点为 React 传进来的变量
+    transform-origin: var(--origin-x, center) var(--origin-y, center);
+
+    display: flex;
+    flex-direction: column;
+    z-index: 99999;
+
+    // 默认稍微缩小一点，或者完全隐藏，由 show 类控制
+    transform: scale(0);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s; // 如果不想要关闭动画，这行可以去掉，只保留animation
+}
+
+// 定义进入动画
+@keyframes zoomInEffect {
+    0% {
+        opacity: 0;
+        transform: scale(0); // 从 0 开始，就像从按钮里冒出来
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1); // 恢复正常大小
+    }
+}
+
+.show {
+    // 只应用这一个动画即可
+    // cubic-bezier 让弹窗有种“嘭”弹出来的弹性感
+    animation: zoomInEffect 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+
+    // 确保动画结束后保持最终状态
+    transform: scale(1);
+    opacity: 1;
+}
+
+.title {
+    height: 40px;
+    background-color: var(--color-primary); // 改个好看点的颜色
+    color: white;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    user-select: none; // 防止拖拽时选中文字
+}
+
+.content {
+    flex: 1;
+    background-color: var(--color-bg-base);
+    color: var(--color-text);
+    overflow: hidden;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--color-bg-base);
+    color: var(--color-text);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.resize {
+    cursor: se-resize;
+}
+
+.twoColumn {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.right {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}

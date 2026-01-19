@@ -1,0 +1,66 @@
+@import '@/css/commonStyles/commonStyles.module.less';
+
+.wrapper {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; // 改为顶部对齐，防止内容少时居中太难看
+    .containerBgColor; // 保持你的背景混入
+}
+
+.uploadCard {
+    width: 100%;
+    max-width: 1200px; // 限制最大宽度，防止在大屏上太宽
+    border-radius: 12px; // 圆角更现代
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // 轻微阴影提升层次感
+
+    // 针对暗黑模式的适配 (如果你的Antd ConfigProvider没有全局覆盖，这里可以微调)
+    :global {
+        .ant-card-head {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ant-card-body {
+            padding: 32px; // 增加内部间距
+        }
+    }
+}
+
+.editorWrapper {
+    margin-top: 16px;
+    border: 1px solid #d9d9d9; // 给编辑器加个外边框，防止视觉散乱
+    border-radius: 8px;
+    overflow: hidden; // 防止圆角溢出
+    transition: all 0.3s;
+
+    &:hover {
+        border-color: #4096ff; // 悬停时稍微变色，增加交互感
+    }
+}
+
+.btnWrapper {
+    display: flex;
+    justify-content: flex-end; // 按钮靠右，符合大多数表单提交习惯
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+// 响应式调整
+@media screen and (max-width: 768px) {
+    .wrapper {
+        padding: 12px;
+    }
+
+    .uploadCard {
+        :global {
+            .ant-card-body {
+                padding: 16px;
+            }
+        }
+    }
+}

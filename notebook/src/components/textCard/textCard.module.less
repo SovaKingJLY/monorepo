@@ -1,0 +1,74 @@
+@import '@/css/commonStyles/commonStyles.module.less';
+
+.chapterTitle {
+    width: 100%;
+    cursor: pointer;
+    color: var(--color-text);
+    user-select: none;
+    font-size: 2rem;
+    font-weight: 500;
+    padding: 1% 0px;
+}
+
+.chapterTitle:hover {
+    color: #409EFF;
+}
+
+.textTitle {
+    height: 0rem;
+    font-size: 0px;
+    width: 100%;
+    cursor: pointer;
+    .fontColor;
+
+    .setPin {
+        display: none;
+    }
+
+    .setCancelPin {
+        display: inline-block;
+    }
+
+}
+
+.textTitle:hover {
+    color: #409EFF;
+
+    .setPin {
+        display: inline-block;
+    }
+
+    .setCancelPin {
+        display: inline-block;
+    }
+}
+
+.mainContent {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.mainContentOpen {
+    font-size: 1.5rem;
+    height: auto;
+    line-height: 3rem;
+    display: block;
+    transition: height 0.2s linear;
+    transition: font-size 0.1s cubic-bezier(.29, .08, 0, .98);
+    padding: 0 20px;
+    .containerBgColor;
+}
+
+.mainTitle {
+    display: flex;
+    justify-content: space-between;
+}
+
+.setPin:hover {
+    color: red;
+}
+
+
+.setCancelPin:hover {
+    color: red;
+}

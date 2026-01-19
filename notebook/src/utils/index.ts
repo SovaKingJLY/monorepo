@@ -1,0 +1,1 @@
+export { textKeyList } from "./textKeyList";
