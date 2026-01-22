@@ -5,10 +5,12 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import useDarkStore from './store/darkMode'
 import useUserStore from './store/user'
 import { ConfigProvider } from 'antd'
-import getThemeConfig from './css/themeConfig/themeConfig'
-import { GlobalStyle } from './components/cssinJS/GlobalStyle'
+import getThemeConfig from '@repo/antd_config//themeConfig'
+import { GlobalStyle } from '@repo/antd_config/GlobalStyle'
+
 import { getInfo } from './api/http/api'
-import 'nprogress/nprogress.css'; // 必须引入这一行
+import 'nprogress/nprogress.css';
+
 function App() {
   const AiChat = lazy(() => import('./components/AIChat/AiChat'));
   const DarkMode = useDarkStore();
@@ -17,7 +19,7 @@ function App() {
   let [themeConfig, setThemeConfig] = useState({});
 
   useEffect(() => {
-    setThemeConfig(getThemeConfig());
+    setThemeConfig(getThemeConfig({ isDark }));
   }, [isDark])
 
   useEffect(() => {//取出token,设置全局变量,和后端进行检验
@@ -40,6 +42,7 @@ function App() {
 
   return (
     <>
+      {/* ConfigProvider用于配置antd的react context传递css in js信息，而GlobalStyle用于将css in js的数据转换成全局css变量 */}
       <ConfigProvider theme={themeConfig}>
         <GlobalStyle></GlobalStyle>
         {UserStore.role &&
@@ -49,7 +52,6 @@ function App() {
         }
         <RouterProvider router={router} />
       </ConfigProvider>
-
     </>
   )
 }

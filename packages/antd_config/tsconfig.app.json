@@ -1,0 +1,8 @@
+{
+  "extends": "@repo/tsconfig/tsconfig.app.json",
+  "compilerOptions": {},
+  "include": [
+    "./*.ts",
+    "./*.tsx"
+  ]
+}

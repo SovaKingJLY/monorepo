@@ -2,7 +2,8 @@ import { theme } from "antd";
 
 export function GlobalStyle() {
   const { token } = theme.useToken();
-  //定义css变量，这里的${token.colorBgContainer}是CSS-in-JS 的写法（直接写在 .tsx 文件里），而不能直接写在 .css 或 .less 文件里。
+  //定义全局css变量
+  //这里的${token.colorBgContainer}是CSS-in-JS 的写法（直接写在 .tsx 文件里），而不能直接写在 .css 或 .less 文件里。
   const css = `
     :root {
       --color-bg-base: ${token.colorBgContainer};/*是这样的注释 这里是容器背景色*/
@@ -23,6 +24,18 @@ export function GlobalStyle() {
       transition:
         background-color 0.1s linear,
         color 0.1s linear;
+    }
+    .fontColor {
+    color: var(--color-text);
+    }
+
+    .containerBgColor {
+        background-color: var(--color-bg-base);
+        color: var(--color-text);
+    }
+
+    .containerShadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
     
   `;

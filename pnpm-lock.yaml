@@ -45,6 +45,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.2
+      '@repo/antd_config':
+        specifier: workspace:*
+        version: link:../../packages/antd_config
       '@repo/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsConfig
@@ -151,6 +154,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.2
+      '@repo/antd_config':
+        specifier: workspace:*
+        version: link:../../packages/antd_config
       '@repo/qiniu':
         specifier: workspace:*
         version: link:../../packages/qiniu
@@ -196,6 +202,28 @@ importers:
       vite-plugin-qiniu:
         specifier: ^1.0.4
         version: 1.0.4
+
+  packages/antd_config:
+    dependencies:
+      '@repo/tsconfig':
+        specifier: workspace:*
+        version: link:../tsConfig
+      antd:
+        specifier: ^5.28.1
+        version: 5.29.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@24.10.9)(less@4.5.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.9
+        version: 19.2.9
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.9)
 
   packages/qiniu:
     dependencies:
@@ -940,6 +968,9 @@ packages:
 
   '@types/react@19.2.8':
     resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
+
+  '@types/react@19.2.9':
+    resolution: {integrity: sha512-Lpo8kgb/igvMIPeNV2rsYKTgaORYdO1XGVZ4Qz3akwOj0ySGYMPlQWa8BaLn0G63D1aSaAQ5ldR06wCpChQCjA==}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
@@ -3257,7 +3288,15 @@ snapshots:
     dependencies:
       '@types/react': 19.2.8
 
+  '@types/react-dom@19.2.3(@types/react@19.2.9)':
+    dependencies:
+      '@types/react': 19.2.9
+
   '@types/react@19.2.8':
+    dependencies:
+      csstype: 3.2.3
+
+  '@types/react@19.2.9':
     dependencies:
       csstype: 3.2.3
 

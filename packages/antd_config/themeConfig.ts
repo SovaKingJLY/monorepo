@@ -1,7 +1,9 @@
 import { theme, type ThemeConfig } from "antd";
-import useDarkStore from "../../store/darkMode";
-const getThemeConfig = () => {
-    const isDark = useDarkStore.getState().isDark;
+
+interface themeConfigProp {
+    isDark: boolean,
+}
+const getThemeConfig = (themeConfigProp: themeConfigProp) => {
 
     let themeConfig: ThemeConfig = {
         // algorithm: theme.darkAlgorithm,//算法部分，通过指定某个算法，能够计算出最终的颜色
@@ -24,7 +26,7 @@ const getThemeConfig = () => {
             }
         }
     };
-    if (isDark) {
+    if (themeConfigProp.isDark) {
         themeConfig = {
             algorithm: theme.darkAlgorithm,
             ...themeConfig,

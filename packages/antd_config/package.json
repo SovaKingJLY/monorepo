@@ -1,0 +1,25 @@
+{
+  "name": "@repo/antd_config",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.0",
+  "peerDependencies": {
+    "antd": "^5.28.1",
+    "react": "^19.0.0",
+    "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "@repo/tsconfig": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3"
+  }
+}
