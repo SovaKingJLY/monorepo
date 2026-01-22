@@ -1,10 +1,10 @@
 import { Form, Checkbox, Input, Button, App } from "antd"
 import type { FormProps } from 'antd';
-import { loginRequest } from "../../../../api/http/api";
 import { useNavigate } from "react-router";
 import useUserStore from "../../../../store/user";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import styles from './login.module.less'
+import { loginRequest } from "@/api/http/admin/adminRequest";
 type FieldType = {
     email: string;
     password: string;

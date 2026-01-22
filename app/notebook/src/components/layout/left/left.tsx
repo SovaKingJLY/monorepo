@@ -8,7 +8,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import useUserStore from '../../../store/user'
 import { useEffect, useState } from 'react'
 import useTextFontSize from '../../../store/state/textFontSize'
-import { logoutAdmin } from '../../../api/http/api'
+import { logoutAdmin } from '@/api/http/admin/adminRequest'
 
 interface formType {
     keyword: string,

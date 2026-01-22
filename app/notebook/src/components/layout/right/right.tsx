@@ -2,10 +2,10 @@
 import ButtonList from '../../buttonList/buttonList';
 import styles from './right.module.less'
 import { ClockCircleOutlined, PushpinOutlined } from '@ant-design/icons';
-import { getAllPinText } from '../../../api/http/api';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from 'antd';
 import useUserStore from '../../../store/user';
+import { getAllPinText } from '@/api/http/text/textRequest';
 
 interface rightProp {
     text: Text[];

@@ -81,76 +81,9 @@ http.interceptors.response.use(//接收时的拦截器
 )
 
 
-export const getAllText = async (): Promise<Text[]> => { return await http.post('article/getAllText/') };
 
-export const setPinTextHttp = async (id: number): Promise<response<Text[]>> => {
-    return await http.post('article/setQuickAccess/', null, {
-        params: {
-            id: id
-        }
-    })
-}
 
-export const setUnPinTextHttp = async (id: number): Promise<response<Text[]>> => {
-    return await http.post('article/removeQuickAccess/', null, {
-        params: {
-            id: id
-        }
-    })
-}
-export const getAllPinText = async (): Promise<Text[]> => {
-    return await http.post('/article/getQuickAccess/');
-}
 
-export const getText = async (id: number): Promise<Text> => {
-    return await http.post('/articleGet/getArticle/', null, {
-        params: {
-            id: id,
-        }
-    })
-}
-export const searchTextByKeyword = async (keyword: string): Promise<Text[]> => {
-    return await http.post('/articleGet/searchArticle/', null, {
-        params: {
-            keyword: keyword,
-            page: 1,
-            sizes: 10
-        }
-    })
-}
-
-export const loginRequest = async (params: { email: string, password: string, remember: boolean }): Promise<loginRes> => {
-    return await http.post('/admin/login/', null, {
-        params: {
-            email: params.email,
-            password: params.password,
-            remember: params.remember
-        }
-    })
-}
-
-export const sendCodeAdmin = async (params: { name: "string", email: "string" }): Promise<string> => {
-    return await http.post('/admin/sendEmail/', null, {
-        params: {
-            name: params.name,
-            email: params.email,
-        }
-    })
-}
-
-export const registerAdmin = async (params: { name: string, password: string, email: string, code: string }): Promise<string> => {
-    return await http.post('/admin/register/', null, {
-        params: {
-            name: params.name,
-            password: params.password,
-            email: params.email,
-            code: params.code,
-        }
-    })
-}
-export const logoutAdmin = async (): Promise<void> => {
-    return await http.post('/token/logoutToken/');
-}
 
 const renewTokenRequest = async (): Promise<string> => {
     return await http.post('/token/renewAccessToken/');

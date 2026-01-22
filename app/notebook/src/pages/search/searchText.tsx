@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router'
-import { searchTextByKeyword, setPinTextHttp, setUnPinTextHttp } from '../../api/http/api';
 import { textKeyList } from '../../utils';
 import TextCard from '../../components/textCard/textCard';
 import { useQueryClient } from '@tanstack/react-query';
 import styles from './searchText.module.less'
 import { App } from 'antd';
+import { searchTextByKeyword, setPinTextHttp, setUnPinTextHttp } from '@/api/http/text/textRequest';
 
 export default function SearchText() {
     const [searchParams] = useSearchParams();
@@ -24,7 +24,6 @@ export default function SearchText() {
                     console.log(res);
                     setLoading(false);
                     setTexts(res);
-                    console.log(textKeyList(res));
                     setKeyList(textKeyList(res));
                 } else {
                     throw new Error("13");

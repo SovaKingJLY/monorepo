@@ -1,10 +1,10 @@
 import { useNavigate, useParams } from 'react-router';
-import { getText } from '../../api/http/api';
 import styles from './textShow.module.less';
 import { useEffect, useState } from 'react'; // 移除 lazy, 增加 useRef
 import { App, Button, Image, Skeleton } from 'antd';
 import useTextFontSize from '../../store/state/textFontSize';
 import useUserStore from '../../store/user';
+import { getText } from '@/api/http/text/textRequest';
 
 // 注意：这里移除了静态 import
 // import parse, { domToReact } from 'html-react-parser';

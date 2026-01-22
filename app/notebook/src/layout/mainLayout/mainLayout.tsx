@@ -1,11 +1,11 @@
 import styles from './mainLayout.module.less'
 import Left from '../../components/layout/left/left'
 import Right from '../../components/layout/right/right'
-import { getAllText, setPinTextHttp, setUnPinTextHttp } from '../../api/http/api'
 import { createContext, useEffect, useMemo, useState } from 'react'
 import { Outlet } from 'react-router'
 import Basement from '../../components/basement/basement'
 import { useQueryClient } from '@tanstack/react-query'
+import { getAllText, setPinTextHttp, setUnPinTextHttp } from '@/api/http/text/textRequest'
 
 
 interface info {

@@ -2,9 +2,10 @@ import { Form, Input, Button, Space, App } from "antd"
 import type { FormProps } from 'antd';
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { loginRequest, registerAdmin, sendCodeAdmin } from "../../../../api/http/api";
+
 import styles from './register.module.less'
 import VerificationCode from "../../../../components/verificationCode/verificationCode";
+import { loginRequest, registerAdmin, sendCodeAdmin } from "@/api/http/admin/adminRequest";
 type FieldType = {
     username: string;
     password: string;
