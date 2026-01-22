@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './upload.module.less';
 import { Editor } from '@tinymce/tinymce-react';
 import { Form, Button, Input, Modal, AutoComplete, App, Card, Row, Col, Space } from 'antd';
-import { getTags, updateText, uploadText } from '../../api/http/api';
 import axios from 'axios';
 import { useBlocker, useNavigate, useSearchParams } from 'react-router';
 import useDarkStore from '../../store/darkMode';
-import { getText } from '@/api/http/text/textRequest';
+import { getTags, getText, updateText, uploadText } from '@/api/http/text/textRequest';
+
 
 interface FieldType {
     title: string;
@@ -108,6 +108,7 @@ export default function Upload() {
             nav(`/text/${resId}`);
         } catch (error) {
             setUploading(false);
+            console.log(error);
             message.error({ key: "upload", content: "保存失败" });
         }
     };

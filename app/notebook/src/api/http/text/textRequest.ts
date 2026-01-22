@@ -3,6 +3,11 @@ import { http } from '@/api/http/api';
 // 假设你有一个 types 文件定义了 Text 接口，如果没有，请确保 Text 不会和 DOM 的 Text 类型冲突
 // import type { Text } from '@/types/article'; 
 
+interface loginRes {
+    accessToken: string,
+    message?: string,
+    role: string,
+}
 // 1. 获取所有文章
 export const getAllText = async (): Promise<Text[]> => {
     return await http.post('/article/getAllText/');
@@ -36,5 +41,44 @@ export const searchTextByKeyword = async (keyword: string): Promise<Text[]> => {
         keyword,
         page: 1,
         sizes: 10
+    });
+}
+export const getTags = async (): Promise<string[]> => {
+    return await http.post('/articleGet/getAllTags/');
+}
+
+export const getInfo = async (): Promise<loginRes> => {
+    return await http.post('/admin/renewAccessToken/');
+}
+
+// 1. 新增文章
+export const uploadText = async (text: Text): Promise<string> => {
+    // 对应后端 @PostMapping("/addNew")
+    return await http.post('/article/addNew/', {
+        // 新增时通常不需要传 id，或者传 null。
+        // 原代码传的是空字符串 ''，如果后端 id 是数字类型，传 '' 会报错，所以建议直接不传 id
+        content: text.content,
+        title: text.title,
+        tag: text.tag
+    }, {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+        }
+    });
+}
+
+// 2. 更新文章
+export const updateText = async (text: Text): Promise<string> => {
+    // 对应后端 @PostMapping("/update")
+    // 修正了 url 拼写 (updata -> update)
+    return await http.post('/article/update/', {
+        id: text.id,
+        content: text.content,
+        title: text.title,
+        tag: text.tag
+    }, {
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+        }
     });
 }

@@ -40,6 +40,7 @@ export default function TextShow() {
                 setText(res);
                 document.title = res.title;
             } catch (err: any) {
+                console.log(err);
                 app.message.error("当前页面不存在，正在跳转");
                 setTimeout(() => nav('/404/'), 3000);
             }

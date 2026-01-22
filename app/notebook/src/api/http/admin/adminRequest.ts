@@ -19,3 +19,4 @@ export const registerAdmin = async (params: { name: string, password: string, em
 export const logoutAdmin = async (): Promise<loginRes> => {
     return await http.post('/token/logoutToken/');
 }
+

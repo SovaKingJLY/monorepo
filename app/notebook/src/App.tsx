@@ -8,8 +8,8 @@ import { ConfigProvider } from 'antd'
 import getThemeConfig from '@repo/antd_config//themeConfig'
 import { GlobalStyle } from '@repo/antd_config/GlobalStyle'
 
-import { getInfo } from './api/http/api'
 import 'nprogress/nprogress.css';
+import { getInfo } from './api/http/text/textRequest'
 
 function App() {
   const AiChat = lazy(() => import('./components/AIChat/AiChat'));

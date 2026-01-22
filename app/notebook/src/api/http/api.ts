@@ -89,35 +89,7 @@ const renewTokenRequest = async (): Promise<string> => {
     return await http.post('/token/renewAccessToken/');
 }
 
-export const uploadText = async (Text: Text): Promise<string> => {
-    return await http.post('/article/addNew/', new URLSearchParams({
-        article: JSON.stringify({
-            id: '',
-            content: Text.content,
-            title: Text.title,
-            tag: Text.tag,
-        }),
-    }))
-}
 
-export const updateText = async (Text: Text): Promise<string> => {
-    return await http.post('/article/updata/', new URLSearchParams({
-        article: JSON.stringify({
-            id: Text.id,
-            content: Text.content,
-            title: Text.title,
-            tag: Text.tag,
-        }),
-    }))
-}
-
-export const getTags = async (): Promise<string[]> => {
-    return await http.post('/articleGet/getAllTags/');
-}
-
-export const getInfo = async (): Promise<loginRes> => {
-    return await http.post('/admin/renewAccessToken/');
-}
 
 // 修改后的前端代码
 export const uploadAiChatData = async (chatData: chatData, sessionId: string): Promise<string> => {
