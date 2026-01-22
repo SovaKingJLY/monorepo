@@ -7,7 +7,6 @@ import { GlobalStyle } from '@repo/antd_config/GlobalStyle'
 import { useEffect, useState } from 'react'
 import useDarkStore from './store/darkMode'
 
-
 function App() {
   const DarkMode = useDarkStore();
   let { isDark } = DarkMode;
