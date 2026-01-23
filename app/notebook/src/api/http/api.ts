@@ -2,16 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 import useUserStore from "../../store/user";
 import { useAiChatStore } from "../../store/aiChatStore";
-interface response<T> {
-    code: number,
-    message: string,
-    data: T
-}
-interface loginRes {
-    accessToken: string,
-    message?: string,
-    role: string,
-}
+
 
 export const http = axios.create({
     baseURL: `${import.meta.env.VITE_BASE_URL}`,
@@ -31,6 +22,7 @@ let requests: Function[] = [];
 
 http.interceptors.response.use(//接收时的拦截器
     async (response) => {//网络上没错
+        console.log(response);
         if (response.data.code < 300) {
             console.log(response.data);
             return response.data.data;

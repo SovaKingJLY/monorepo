@@ -1,7 +1,7 @@
 import useUserStore from "@/store/user";
 
-// // // 定义回调数据的接口
-interface StreamUpdate {
+// 定义回调数据的接口
+export interface StreamUpdate {
     content: string;   // 最终回答的片段
     reasoning: string; // 思考过程的片段
 }

@@ -10,7 +10,7 @@ export interface LoginParams {
 }
 
 /** 登录响应接口 */
-export interface LoginResponse {
+export interface loginRes {
     code: number;
     message: string;
     data: {
@@ -30,6 +30,6 @@ export interface UserProfile {
 // ================== API 请求区域 ==================
 
 /** 登录接口 */
-export const login = (data: LoginParams) => {
-    return http.post<any, LoginResponse>('/admin/login/', data);
-};
+export const loginRequest = async (params: { email: string, password: string, remember: boolean }): Promise<loginRes> => {
+    return await http.post('/admin/login/', params);
+}

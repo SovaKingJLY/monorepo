@@ -7,24 +7,18 @@ const http = axios.create({
 });
 
 // 请求拦截器
-http.interceptors.request.use(
-    (config) => {
-        const { accessToken } = useUserStore.getState();
-        if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
+http.interceptors.request.use(config => {//发送时的拦截器,加上token
+    const accessTokentoken = useUserStore.getState().accessToken;
+    if (accessTokentoken)
+        // config.headers['Authorization'] = 'Bearer ' + accessTokentoken;
+        config.headers['satoken'] = accessTokentoken;
+    return config;
+});
 // 响应拦截器
 http.interceptors.response.use(
     (response) => {
-        // 这里的行为取决于你的后端返回结构，通常返回 response.data
         console.log(response);
+        // 这里的行为取决于你的后端返回结构，通常返回 response.data
         return response.data;
     },
     (error) => {

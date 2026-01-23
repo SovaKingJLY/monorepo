@@ -1,12 +1,14 @@
 import { createBrowserRouter } from "react-router";
-import Index from "../pages/index";
+// import Index from "../pages/index";
 import Login from "../pages/login/login";
+import ChatPage from "../pages/chat/ChatPage";
 
 const mainRouters = [{
     path: '/',
-    element: <Index />
+    element: <Login />
 }, {
-    path: '/login', element: <Login />
+    path: '/chat',
+    element: <ChatPage />
 }];
 
 const router = createBrowserRouter(mainRouters);

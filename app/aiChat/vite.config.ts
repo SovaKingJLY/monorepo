@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path' // 引入 Node.js 的 path 模块
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: './env',
   plugins: [
     react({
       babel: {

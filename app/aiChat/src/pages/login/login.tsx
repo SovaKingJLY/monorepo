@@ -1,7 +1,7 @@
-import { Button, Card, Form, Input, message } from 'antd';
+import { Button, Card, Form, Input, message, Checkbox } from 'antd';
 import { useNavigate } from 'react-router';
 import useUserStore from '@/store/user';
-import { login } from '@/api/user';
+import { loginRequest } from '@/api/user';
 import styles from './login.module.less';
 
 export default function Login() {
@@ -11,9 +11,9 @@ export default function Login() {
 
     const onFinish = async (values: any) => {
         try {
-            const res = await login(values);
+            const res = await loginRequest({ ...values, remember: values.remember || true });
             // 假设接口返回结构如下，根据实际情况调整
-            const token = res.data?.access_token || res.data.access_token || (res as any).token;
+            const token = res.data?.accessToken || res.data.accessToken || (res as any).token;
 
             if (token) {
                 setAccessToken(token);
@@ -41,6 +41,12 @@ export default function Login() {
         }}>
             {contextHolder}
             <Card title="AI Chat 登录" style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                {/* Temporary button for testing */}
+                <div style={{ marginBottom: 16, textAlign: 'center' }}>
+                    <Button type="dashed" onClick={() => navigate('/chat')}>
+                        Go to Chat (Temp)
+                    </Button>
+                </div>
                 <Form
                     name="login"
                     onFinish={onFinish}
@@ -48,11 +54,11 @@ export default function Login() {
                     layout="vertical"
                 >
                     <Form.Item
-                        label="用户名"
-                        name="username"
-                        rules={[{ required: true, message: '请输入用户名!' }]}
+                        label="邮箱"
+                        name="email"
+                        rules={[{ required: true, message: '请输入邮箱!' }]}
                     >
-                        <Input size="large" placeholder="请输入用户名" />
+                        <Input size="large" placeholder="请输入邮箱" />
                     </Form.Item>
 
                     <Form.Item
@@ -61,6 +67,10 @@ export default function Login() {
                         rules={[{ required: true, message: '请输入密码!' }]}
                     >
                         <Input.Password size="large" placeholder="请输入密码" />
+                    </Form.Item>
+
+                    <Form.Item name="remember" valuePropName="checked" initialValue={true}>
+                        <Checkbox>记住我</Checkbox>
                     </Form.Item>
 
                     <Form.Item>
