@@ -102,7 +102,6 @@ export const useAiChatStore = create<nowChat>((set) => ({
     getReply: (history: chatData[], sessionId: string, streamEnd) => {
         set(() => ({ isStream: sessionId }));
         send(history, sessionId, streamEnd);
-
     },
 
     increaseParentId: () => set((state) => ({ parentId: state.parentId + 1 })),

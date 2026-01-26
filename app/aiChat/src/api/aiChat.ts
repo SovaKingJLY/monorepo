@@ -112,7 +112,7 @@ const getStreamData = async (
     messages: any[],
     onToken: (update: StreamUpdate) => void,
     onDone: () => void,
-    onError: (error: Error) => void
+    onError: (error: string) => void
 ) => {
     // 指向你自己的 Spring Boot 后端
     // 假设后端运行在 localhost:8080
@@ -180,7 +180,7 @@ const getStreamData = async (
 
     } catch (error) {
         console.log(error);
-        if (onError) onError(error as Error);
+        if (onError) onError("错误");
     }
 }
 

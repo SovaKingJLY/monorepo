@@ -1,194 +1,219 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { getUserSessionList, getSessionHistory } from '@/api/session';
-
-export interface ChatData {
-    role: 'system' | 'user' | 'assistant';
-    content: string;
-    reasoningContent?: string;
+import getStreamData, { type StreamUpdate } from "@/api/aiChat";
+import { create } from "zustand";
+// 2. 定义单条会话的状态结构 (Single Session State)
+// 注意：为了不混淆，这里指代“单个会话的数据”
+interface SingleSessionData {
+    chatDatas: chatData[];
+    session: string;
+    id: number;
+    isSteamEnd: boolean;
 }
 
-// Data structure for a single chat session's content
-export type SingleRequest = {
-    sessionId: string;
-    chatData: ChatData[];
-};
+// 3. 定义 Store 接口
+interface multiChat {
+    // --- 状态字段 ---
 
-// Data structure for the session index/list
-export interface Session {
-    sessionId: string;
-    title: string;
-    updatedAt: string;
+    // [修改点 1]：改成 Map 结构 (Key 是 sessionId, Value 是会话数据)
+    aiChatState: Record<string, SingleSessionData>;
+
+    curSession: string;           // 当前会话 ID
+    processList: string[];        // 正在生成的会话 ID 列表
+    successList: string[];        // 生成成功的会话 ID 列表
+
+    // --- Actions ---
+    getChatDatas: (sessionId: string) => void;
+    sendMessage: (prompt: string) => Promise<void>;
+    addProcessList: (sessionId: string) => void;
+    deleteProcessList: (sessionId: string) => void;
+    addSuccessList: (sessionId: string) => void;
+    deleteSuccessList: (sessionId: string) => void;
+    clearCurrentChat: () => void;
+    // 重置当前会话ID
+    resetSession: () => void;
 }
 
-interface AiChatState {
-    // List of all sessions (the index)
-    sessions: Session[];
+const useAiChatStore = create<multiChat>()((set, get) => {
+    return {
+        // --- Initial State ---
+        aiChatState: {}, // [修改点 2]：初始化为空对象 {}
+        curSession: '',
+        successList: [],
+        processList: [],
 
-    // Map storing the content of each session: sessionId -> ChatData[]
-    // This allows us to lookup the 'chatData' for a given 'sessionId'
-    sessionChatMap: Record<string, ChatData[]>;
+        // --- Actions ---
 
-    // The currently active session ID
-    currentSessionId: string | null;
+        // 重置当前会话
+        resetSession: () => set({ curSession: '' }),
 
-    // Actions
-    setSessions: (sessions: Session[]) => void;
-    addSession: (session: Session) => void;
-    updateSessionTitle: (sessionId: string, title: string) => void;
-    removeSession: (sessionId: string) => void;
+        // 切换或初始化会话
+        getChatDatas: (sessionId: string) => {
+            const { aiChatState } = get();
 
-    setCurrentSessionId: (sessionId: string | null) => void;
+            // 如果 Map 中还没有这个 Session，初始化一个
+            if (!aiChatState[sessionId]) {
+                set((state) => ({
+                    curSession: sessionId,
+                    aiChatState: {
+                        ...state.aiChatState,
+                        [sessionId]: {
+                            session: sessionId,
+                            id: Date.now(),
+                            chatDatas: [],
+                            isSteamEnd: true,
+                        }
+                    }
+                }));
+            } else {
+                // 如果已有，直接切换 ID 即可
+                set({ curSession: sessionId });
+            }
+        },
 
-    // Manage chat data for a specific session
-    setSessionChatData: (sessionId: string, chatData: ChatData[]) => void;
-    addMessageToSession: (sessionId: string, message: ChatData) => void;
-    updateLastMessageContent: (sessionId: string, contentDelta: string, reasoningDelta?: string) => void;
-    // Async Actions
-    fetchSessions: () => Promise<void>;
-    fetchSessionMessages: (sessionId: string) => Promise<void>;
+        // 清空当前会话的消息
+        clearCurrentChat: () => {
+            const { curSession } = get();
+            if (!curSession) return;
 
-    clearStore: () => void;
-}
-
-export const useAiChatStore = create<AiChatState>()(
-    persist(
-        (set, get) => ({
-            sessions: [],
-            sessionChatMap: {},
-            currentSessionId: null,
-
-            setSessions: (sessions) => set({ sessions }),
-
-            addSession: (session) => set((state) => {
-                if (state.sessions.some(s => s.sessionId === session.sessionId)) {
-                    return state;
+            set((state) => ({
+                aiChatState: {
+                    ...state.aiChatState,
+                    [curSession]: {
+                        ...state.aiChatState[curSession],
+                        chatDatas: []
+                    }
                 }
-                return {
-                    sessions: [session, ...state.sessions]
-                };
-            }),
+            }));
+        },
 
-            updateSessionTitle: (sessionId, title) => set((state) => ({
-                sessions: state.sessions.map(s =>
-                    s.sessionId === sessionId ? { ...s, title } : s
-                )
-            })),
+        // 核心：发送消息并处理流
+        sendMessage: async (prompt: string) => {
+            const { curSession, processList, aiChatState, addProcessList, deleteProcessList, addSuccessList, getChatDatas } = get();
 
-            removeSession: (sessionId) => set((state) => {
-                const newMap = { ...state.sessionChatMap };
-                delete newMap[sessionId];
-
-                return {
-                    sessions: state.sessions.filter(s => s.sessionId !== sessionId),
-                    sessionChatMap: newMap,
-                    currentSessionId: state.currentSessionId === sessionId ? null : state.currentSessionId
-                };
-            }),
-
-            setCurrentSessionId: (currentSessionId) => set({ currentSessionId }),
-
-            setSessionChatData: (sessionId, chatData) => set((state) => ({
-                sessionChatMap: {
-                    ...state.sessionChatMap,
-                    [sessionId]: chatData
+            // 0. 校验 Session ID
+            let currentSessionId = curSession;
+            if (!currentSessionId) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                for (let i = 0; i < 20; i++) {
+                    currentSessionId += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-            })),
+                // 初始化这个新 Session
+                getChatDatas(currentSessionId);
+            }
 
-            addMessageToSession: (sessionId, message) => set((state) => {
-                const currentChatData = state.sessionChatMap[sessionId] || [];
+            // 1. 防止重复提交
+            if (processList.includes(currentSessionId)) return;
+
+            // 2. 准备消息
+            const userMsg: chatData = { role: "user", content: prompt };
+            // 3. 预先加入一个空的 Assistant 消息占位
+            const assistantMsgPlaceholder: chatData = { role: "assistant", content: "", reasoningContent: "" };
+
+            // 4. 乐观更新：直接通过 Key 更新 Map
+            set((state) => {
+                const currentSessionData = state.aiChatState[currentSessionId];
                 return {
-                    sessionChatMap: {
-                        ...state.sessionChatMap,
-                        [sessionId]: [...currentChatData, message]
+                    aiChatState: {
+                        ...state.aiChatState, // 浅拷贝 Map
+                        [currentSessionId]: { // 只覆盖当前 Session
+                            ...currentSessionData,
+                            chatDatas: [...currentSessionData.chatDatas, userMsg, assistantMsgPlaceholder],
+                            isSteamEnd: false,
+                        }
                     }
                 };
-            }),
+            });
 
-            updateLastMessageContent: (sessionId, contentDelta, reasoningDelta) => set((state) => {
-                const currentChatData = state.sessionChatMap[sessionId] || [];
-                if (currentChatData.length === 0) return state;
+            // 5. 标记为处理中
+            addProcessList(currentSessionId);
 
-                const lastMessage = currentChatData[currentChatData.length - 1];
-                const updatedLastMessage = {
-                    ...lastMessage,
-                    content: lastMessage.content + contentDelta,
-                    reasoningContent: (lastMessage.reasoningContent || '') + (reasoningDelta || '')
-                };
+            // 6. 准备发送给 API 的消息（从最新的 State 中取，并去掉最后一个空占位）
+            const currentSessionData = get().aiChatState[currentSessionId];
+            const apiMessages = currentSessionData.chatDatas.slice(0, -1);
 
-                const newChatData = [...currentChatData.slice(0, -1), updatedLastMessage];
+            // 7. 调用流式请求
+            await getStreamData(
+                apiMessages,
+                // onToken: 收到每个片段时更新 Store
+                (update: StreamUpdate) => {
+                    set((state) => {
+                        // [关键修改]：Map 形式的深层不可变更新
+                        const session = state.aiChatState[currentSessionId];
+                        if (!session) return state; // 防御性代码
 
-                return {
-                    sessionChatMap: {
-                        ...state.sessionChatMap,
-                        [sessionId]: newChatData
-                    }
-                };
-            }),
+                        // 1. 拷贝消息列表
+                        const newChatDatas = [...session.chatDatas];
+                        // 2. 找到最后一条（即占位符）
+                        const lastIndex = newChatDatas.length - 1;
+                        const lastMsg = { ...newChatDatas[lastIndex] };
 
-            fetchSessions: async () => {
-                try {
-                    const res = await getUserSessionList();
-                    // 兼容后端返回格式：可能是直接的数组，也可能是 { code: 200, data: [...] } 的形式
-                    const sessionList = Array.isArray(res) ? res : (res as any).data;
+                        // 3. 增量更新
+                        if (update.content) lastMsg.content += update.content;
+                        if (update.reasoning) lastMsg.reasoningContent = (lastMsg.reasoningContent || "") + update.reasoning;
+                        console.log(update);
+                        // 4. 放回数组
+                        newChatDatas[lastIndex] = lastMsg;
 
-                    if (!Array.isArray(sessionList)) {
-                        console.warn('fetchSessions: Expected array but got:', res);
-                        return;
-                    }
-
-                    // Map backend data to frontend structure if necessary
-                    const mappedSessions: Session[] = sessionList.map((s: any) => ({
-                        sessionId: s.sessionId,
-                        title: s.title || 'Untitled Session',
-                        updatedAt: s.updatedAt || new Date().toISOString()
-                    }));
-                    set({ sessions: mappedSessions });
-                } catch (error) {
-                    console.error("Failed to fetch sessions:", error);
-                }
-            },
-
-            fetchSessionMessages: async (sessionId: string) => {
-                try {
-                    const res = await getSessionHistory(sessionId);
-                    // Handle potential wrapped response structure (e.g. { data: [...] })
-                    const history = Array.isArray(res) ? res : (res as any).data;
-
-                    if (!Array.isArray(history)) {
-                        console.warn('fetchSessionMessages: Expected array but got:', res);
-                        return;
-                    }
-
-                    // Map backend data to frontend structure if necessary
-                    const mappedChatData: ChatData[] = history.map((h: any) => ({
-                        role: h.role,
-                        content: h.content,
-                        reasoningContent: h.reasoningContent
-                    }));
-
+                        // 5. 放回 Map
+                        return {
+                            aiChatState: {
+                                ...state.aiChatState,
+                                [currentSessionId]: {
+                                    ...session,
+                                    chatDatas: newChatDatas,
+                                }
+                            }
+                        };
+                    });
+                },
+                // onDone
+                () => {
                     set((state) => ({
-                        sessionChatMap: {
-                            ...state.sessionChatMap,
-                            [sessionId]: mappedChatData
+                        aiChatState: {
+                            ...state.aiChatState,
+                            [currentSessionId]: {
+                                ...state.aiChatState[currentSessionId],
+                                isSteamEnd: true
+                            }
                         }
                     }));
-                } catch (error) {
-                    console.error("Failed to fetch session history:", error);
+                    deleteProcessList(currentSessionId);
+                    addSuccessList(currentSessionId);
+                    console.log("Stream finished");
+                },
+                // onError
+                (error: any) => {
+                    deleteProcessList(currentSessionId);
+                    console.error("Stream failed", error);
                 }
-            },
+            );
+        },
 
-            clearStore: () => set({ sessions: [], sessionChatMap: {}, currentSessionId: null }),
-        }),
-        {
-            name: 'ai-chat-store',
-            partialize: (state) => ({
-                sessions: state.sessions,
-                sessionChatMap: state.sessionChatMap,
-                currentSessionId: state.currentSessionId
-            }),
-        }
-    )
-);
+        // --- Helper Functions ---
+
+        addProcessList: (sessionId: string) => {
+            set((state) => ({
+                processList: [...state.processList, sessionId]
+            }));
+        },
+
+        deleteProcessList: (sessionId: string) => {
+            set((state) => ({
+                processList: state.processList.filter((id) => id !== sessionId)
+            }));
+        },
+
+        addSuccessList: (sessionId: string) => {
+            set((state) => ({
+                successList: [...state.successList, sessionId]
+            }));
+        },
+
+        deleteSuccessList: (sessionId: string) => {
+            set((state) => ({
+                successList: state.successList.filter((id) => id !== sessionId)
+            }));
+        },
+    };
+});
 
 export default useAiChatStore;

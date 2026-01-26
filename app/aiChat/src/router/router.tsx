@@ -9,6 +9,9 @@ const mainRouters = [{
 }, {
     path: '/chat',
     element: <ChatPage />
+}, {
+    path: '/chat/:id',
+    element: <ChatPage />
 }];
 
 const router = createBrowserRouter(mainRouters);
