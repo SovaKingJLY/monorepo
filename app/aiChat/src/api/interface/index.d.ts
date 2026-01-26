@@ -1,4 +1,10 @@
 
+interface ApiResponse<T = any> {
+    code: number;
+    data: T;
+    message: string;
+}
+
 interface Text {
     id: number,
     title: string,

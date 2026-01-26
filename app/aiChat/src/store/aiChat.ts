@@ -1,4 +1,5 @@
 import getStreamData, { type StreamUpdate } from "@/api/aiChat";
+import { getSessionHistory } from "@/api/session";
 import { create } from "zustand";
 // 2. 定义单条会话的状态结构 (Single Session State)
 // 注意：为了不混淆，这里指代“单个会话的数据”
@@ -21,7 +22,7 @@ interface multiChat {
     successList: string[];        // 生成成功的会话 ID 列表
 
     // --- Actions ---
-    getChatDatas: (sessionId: string) => void;
+    getChatDatas: (sessionId: string) => Promise<void>;
     sendMessage: (prompt: string) => Promise<void>;
     addProcessList: (sessionId: string) => void;
     deleteProcessList: (sessionId: string) => void;
@@ -46,26 +47,46 @@ const useAiChatStore = create<multiChat>()((set, get) => {
         resetSession: () => set({ curSession: '' }),
 
         // 切换或初始化会话
-        getChatDatas: (sessionId: string) => {
+        getChatDatas: async (sessionId: string) => {
             const { aiChatState } = get();
 
-            // 如果 Map 中还没有这个 Session，初始化一个
-            if (!aiChatState[sessionId]) {
-                set((state) => ({
-                    curSession: sessionId,
-                    aiChatState: {
-                        ...state.aiChatState,
-                        [sessionId]: {
-                            session: sessionId,
-                            id: Date.now(),
-                            chatDatas: [],
-                            isSteamEnd: true,
-                        }
-                    }
-                }));
-            } else {
-                // 如果已有，直接切换 ID 即可
+            // 如果已有，直接切换 ID 即可
+            if (aiChatState[sessionId]) {
                 set({ curSession: sessionId });
+                return;
+            }
+
+            // 如果 Map 中还没有这个 Session，先初始化一个空状态
+            set((state) => ({
+                curSession: sessionId,
+                aiChatState: {
+                    ...state.aiChatState,
+                    [sessionId]: {
+                        session: sessionId,
+                        id: Date.now(),
+                        chatDatas: [],
+                        isSteamEnd: true,
+                    }
+                }
+            }));
+
+            try {
+                // 从 API 获取历史记录
+                const res = await getSessionHistory(sessionId);
+                // 如果有历史记录，更新 store
+                if (res.data && res.data.length > 0) {
+                    set((state) => ({
+                        aiChatState: {
+                            ...state.aiChatState,
+                            [sessionId]: {
+                                ...state.aiChatState[sessionId],
+                                chatDatas: res.data
+                            }
+                        }
+                    }));
+                }
+            } catch (error) {
+                console.error("Failed to load session history:", error);
             }
         },
 
@@ -87,7 +108,7 @@ const useAiChatStore = create<multiChat>()((set, get) => {
 
         // 核心：发送消息并处理流
         sendMessage: async (prompt: string) => {
-            const { curSession, processList, aiChatState, addProcessList, deleteProcessList, addSuccessList, getChatDatas } = get();
+            const { curSession, processList, addProcessList, deleteProcessList, addSuccessList, getChatDatas } = get();
 
             // 0. 校验 Session ID
             let currentSessionId = curSession;

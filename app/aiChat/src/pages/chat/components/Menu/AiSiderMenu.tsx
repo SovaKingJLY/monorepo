@@ -111,8 +111,8 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             nav('/chat');
             aiChatStore.resetSession();
         } else {
-            // 这里获取历史详情
-            // const history = await getSessionHistory(key);
+            nav(`/chat/${key}`);
+            aiChatStore.getChatDatas(key);
         }
     }
 
