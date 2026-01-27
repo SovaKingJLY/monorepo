@@ -1,8 +1,9 @@
 import http from './http';
-export const uploadAiChatData = async (chatData: chatData, sessionId: string): Promise<string> => {
+
+export const uploadAiChatData = async (chatData: chatData, sessionId: string, parentId: string | number): Promise<ApiResponse<string>> => {
     return await http.post('/chat/add/', {
         // 直接发送平铺的数据
-        // parentId: useAiChatStore.getState().parentId,
+        parentId: parentId,
         sessionId: sessionId,
         role: chatData.role,
         content: chatData.content,

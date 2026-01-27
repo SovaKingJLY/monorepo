@@ -17,10 +17,9 @@ function App() {
   }, [isDark])
   return (
     <>
-      <GlobalStyle></GlobalStyle>
-      <RouterProvider router={router} />
       <ConfigProvider theme={themeConfig}>
-
+        <GlobalStyle></GlobalStyle>
+        <RouterProvider router={router} />
       </ConfigProvider>
     </>
   )

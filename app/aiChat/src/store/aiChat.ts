@@ -1,6 +1,7 @@
 import getStreamData, { type StreamUpdate } from "@/api/aiChat";
-import { getSessionHistory } from "@/api/session";
+import { getSessionHistory, uploadAiChatData } from "@/api/session";
 import { create } from "zustand";
+import { queryClient } from "@/queryClient";
 // 2. 定义单条会话的状态结构 (Single Session State)
 // 注意：为了不混淆，这里指代“单个会话的数据”
 interface SingleSessionData {
@@ -8,6 +9,7 @@ interface SingleSessionData {
     session: string;
     id: number;
     isSteamEnd: boolean;
+    parentId?: number | string; // 记录这一组对话的最后一条消息ID（即下一条消息的 parentId）
 }
 
 // 3. 定义 Store 接口
@@ -62,10 +64,11 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                 aiChatState: {
                     ...state.aiChatState,
                     [sessionId]: {
-                        session: sessionId,
+                        session: sessionId, // 这个 session 字段其实冗余了，key 已经是 sessionId
                         id: Date.now(),
                         chatDatas: [],
                         isSteamEnd: true,
+                        parentId: 0, // 初始化
                     }
                 }
             }));
@@ -75,12 +78,18 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                 const res = await getSessionHistory(sessionId);
                 // 如果有历史记录，更新 store
                 if (res.data && res.data.length > 0) {
+                    // 获取最后一条消息的 ID 作为 parentId
+                    // 假设返回的数据里每条消息都有 id 字段
+                    const lastMsg = res.data[res.data.length - 1] as any;
+                    const lastId = lastMsg.id ? lastMsg.id : 0;
+
                     set((state) => ({
                         aiChatState: {
                             ...state.aiChatState,
                             [sessionId]: {
                                 ...state.aiChatState[sessionId],
-                                chatDatas: res.data
+                                chatDatas: res.data,
+                                parentId: lastId
                             }
                         }
                     }));
@@ -147,6 +156,19 @@ const useAiChatStore = create<multiChat>()((set, get) => {
             // 5. 标记为处理中
             addProcessList(currentSessionId);
 
+            // [新增] 上传用户消息
+            try {
+                const currentSession = get().aiChatState[currentSessionId];
+                // 获取当前的 parentId
+                const parentId = currentSession.parentId || 0;
+                // 调用 API 上传
+                await uploadAiChatData(userMsg, currentSessionId, parentId);
+                // 通知 sessionList 更新
+                queryClient.invalidateQueries({ queryKey: ['sessionList'] });
+            } catch (e) {
+                console.error("Failed to upload user message", e);
+            }
+
             // 6. 准备发送给 API 的消息（从最新的 State 中取，并去掉最后一个空占位）
             const currentSessionData = get().aiChatState[currentSessionId];
             const apiMessages = currentSessionData.chatDatas.slice(0, -1);
@@ -187,7 +209,39 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                     });
                 },
                 // onDone
-                () => {
+                async () => {
+                    // [新增] 结束时，上传 AI 的完整回复
+                    // 获取当前最新状态
+                    const finalState = get().aiChatState[currentSessionId];
+                    if (finalState) {
+                        const allMsgs = finalState.chatDatas;
+                        const lastAiMsg = allMsgs[allMsgs.length - 1];
+                        // 也就是刚刚生成的这条 AI 消息
+                        // 此时 parentId 应该是刚刚用户消息的 ID
+
+                        // 只有当它是 assistant 时才上传 (双重校验)
+                        if (lastAiMsg && lastAiMsg.role === 'assistant') {
+                            try {
+                                // 当前的 parentId 已经是用户消息的 id 了
+                                const res = await uploadAiChatData(lastAiMsg, currentSessionId, 0);
+                                console.log(res);
+                                if (res.code === 200 && res.data) {
+                                    set((state) => ({
+                                        aiChatState: {
+                                            ...state.aiChatState,
+                                            [currentSessionId]: {
+                                                ...state.aiChatState[currentSessionId],
+                                                parentId: res.data
+                                            }
+                                        }
+                                    }));
+                                }
+                            } catch (e) {
+                                console.error("Failed to upload AI message", e);
+                            }
+                        }
+                    }
+
                     set((state) => ({
                         aiChatState: {
                             ...state.aiChatState,

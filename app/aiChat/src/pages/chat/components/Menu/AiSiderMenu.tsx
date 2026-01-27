@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 // 引入图标以解决收起时不显示的问题
 import { PlusOutlined, HistoryOutlined, MessageOutlined } from "@ant-design/icons";
-import { getSessionHistory, getUserSessionList } from "@/api/session";
+import { getUserSessionList } from "@/api/session";
 import { useNavigate } from "react-router";
 import useAiChatStore from "@/store/aiChat";
 
@@ -35,7 +35,7 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             // 现在 list 才是那个 Array(112)，可以调用 map 了
             return list.map((i: any) => ({
                 sessionId: i.sessionId,
-                title: i.title, // 例如: "鸡公煲经过我的胃"
+                title: i.title,
                 updatedAt: i.updatedAt?.slice(0, 10) || "未知日期", // 防止日期为空报错
             })).sort((a: any, b: any) => b.updatedAt.localeCompare(a.updatedAt));
         }
