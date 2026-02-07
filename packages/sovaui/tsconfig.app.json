@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/tsconfig/tsconfig.app.json",
+  "compilerOptions": {},
+  "include": [
+    "floatTwoColumn/*.tsx",
+  ]
+}

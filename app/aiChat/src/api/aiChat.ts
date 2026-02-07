@@ -24,7 +24,7 @@ export interface StreamUpdate {
 //     const API_KEY = "sk-wstsseszxmaatoaufgueuaevvlaqwopaxsliruurquuiflap";
 //     const URL = "https://api.siliconflow.cn/v1/chat/completions";
 //     // DeepSeek R1 模型名称
-//     const LLMType = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B';
+//     const LLMType = 'deepseek-ai/DeepSeek-V3.2';
 //     try {
 //         const res = await fetch(URL, {
 //             method: "post",
@@ -135,7 +135,7 @@ const getStreamData = async (
         }
 
         if (!res.body) throw new Error("Response body is empty");
-
+        console.log("这里");
         const reader = res.body.getReader();
         const decoder = new TextDecoder("utf-8");
         let buffer = "";
@@ -145,7 +145,6 @@ const getStreamData = async (
             if (done) break;
             const chunk = decoder.decode(value, { stream: true });
             buffer += chunk;
-
             // Spring WebFlux SSE 默认格式也是 "data: {...}\n\n"
             const lines = buffer.split("\n");
             buffer = lines.pop() || '';

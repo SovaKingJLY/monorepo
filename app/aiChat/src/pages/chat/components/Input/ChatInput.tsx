@@ -58,10 +58,7 @@ export default function ChatInput() {
                 form={form}
                 name="basic"
                 style={{
-                    display: 'flex',
-                    justifyContent: "center",
-                    alignItems: 'center',
-                    width: '100%',
+                    width: '50%',
                 }}
                 onFinish={onFinish}
                 autoComplete="off"

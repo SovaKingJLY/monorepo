@@ -182,7 +182,6 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                         // [关键修改]：Map 形式的深层不可变更新
                         const session = state.aiChatState[currentSessionId];
                         if (!session) return state; // 防御性代码
-
                         // 1. 拷贝消息列表
                         const newChatDatas = [...session.chatDatas];
                         // 2. 找到最后一条（即占位符）
@@ -192,7 +191,7 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                         // 3. 增量更新
                         if (update.content) lastMsg.content += update.content;
                         if (update.reasoning) lastMsg.reasoningContent = (lastMsg.reasoningContent || "") + update.reasoning;
-                        console.log(update);
+                        console.log(update, "这里");
                         // 4. 放回数组
                         newChatDatas[lastIndex] = lastMsg;
 

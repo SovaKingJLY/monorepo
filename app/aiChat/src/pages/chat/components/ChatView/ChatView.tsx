@@ -80,9 +80,7 @@ export default function ChatView() {
                 })}
                 <div ref={bottomRef} style={{ float: "left", clear: "both" }} />
             </div>
-            <div className={styles.input}>
-                <ChatInput />
-            </div>
+            <ChatInput />
         </div>
     );
 }

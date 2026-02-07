@@ -14,10 +14,11 @@ export default function ChatPage() {
     const toDark = () => {
         setDark(!isDark);
     }
+
     return <>
         <div className={styles.twoColumn}>
             <Sider
-                style={{ height: "100%", width: '400px' }}
+                style={{ height: "100%" }}
                 trigger={null}
                 width={300}
                 collapsible
@@ -31,20 +32,20 @@ export default function ChatPage() {
                     <div className={styles.logo}>
                         我是LOGO
                     </div>
-                    <div className={styles.collBtn}>
-                        <Tooltip title="search">
-                            <Button type="primary" shape="circle" icon={<MoonOutlined />} onClick={toDark} />
-                        </Tooltip>
-                        <Tooltip title="search">
-                            <Button shape="circle" icon={<SearchOutlined onClick={() => { setCollapsed(true) }} />} />
-                        </Tooltip>
-                    </div>
                 </div>
                 <div className={styles.menuWrapper}>
                     <AiSiderMenu collapsed={collapsed} />
                 </div>
             </Sider>
             <div className={styles.right}>
+                <div className={styles.collBtn}>
+                    <Tooltip title="search">
+                        <Button type="primary" shape="circle" icon={<MoonOutlined />} onClick={toDark} />
+                    </Tooltip>
+                    <Tooltip title="search">
+                        <Button shape="circle" icon={<SearchOutlined onClick={() => { setCollapsed(!collapsed) }} />} />
+                    </Tooltip>
+                </div>
                 <ChatView />
             </div>
         </div>

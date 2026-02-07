@@ -1,6 +1,5 @@
 packages:
   - app/*
-  - aiChat/*
   - packages/*
 
 ignoredBuiltDependencies:
