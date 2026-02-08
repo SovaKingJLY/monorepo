@@ -66,7 +66,7 @@ export default function ChatInput() {
                 <div className={styles.inputWrapper}>
                     <Form.Item<FieldType> noStyle name="prompt">
                         <TextArea
-                            placeholder={isRestricted ? "请等待..." : "输入提示词..."}
+                            placeholder={isRestricted ? "请等待..." : "给AI助手发送消息.."}
                             autoSize={{ minRows: 1, maxRows: 6 }}
                             disabled={isLoading} // 加载时禁用输入框
                             variant="borderless"

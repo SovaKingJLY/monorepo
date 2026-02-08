@@ -78,13 +78,8 @@
 .twoColumn {
     display: flex;
     flex-direction: row;
-    height: 100vh;
 
-    :global(.ant-layout-sider-children) {
-        display: flex;
-        flex-direction: column;
-        height: 100%; // 强制它占满 Sider 的高度
-    }
+
 }
 
 .left {
@@ -126,5 +121,24 @@
 }
 
 .collBtn {
-    position: fixed;
+    position: sticky;
+    top: 16px;
+    z-index: 99;
+    display: flex;
+    gap: 8px;
+    height: 0px;
+    margin-left: 16px;
+}
+
+.content {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.left {
+    max-height: 100vh;
 }

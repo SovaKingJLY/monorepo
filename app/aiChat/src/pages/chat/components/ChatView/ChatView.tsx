@@ -56,12 +56,12 @@ export default function ChatView() {
                                 [styles.aiMessage]: !isUser
                             })}
                         >
-                            <div className={styles.avatar}>
+                            {/* <div className={styles.avatar}>
                                 <Avatar
                                     style={{ backgroundColor: isUser ? '#1677ff' : '#52c41a' }}
                                     icon={isUser ? <UserOutlined /> : <RobotOutlined />}
                                 />
-                            </div>
+                            </div> */}
                             <div className={styles.content}>
                                 <div className={styles.messageBubble} style={{
                                     backgroundColor: isUser ? '#e6f7ff' : '#f6ffed',

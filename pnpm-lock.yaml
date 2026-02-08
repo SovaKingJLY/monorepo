@@ -20,6 +20,9 @@ importers:
       '@ant-design/v5-patch-for-react-19':
         specifier: ^1.0.3
         version: 1.0.3(antd@5.29.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@repo/sovaui':
+        specifier: workspace:*
+        version: link:../../packages/sovaui
       '@tanstack/react-query':
         specifier: ^5.90.11
         version: 5.90.19(react@19.2.3)
