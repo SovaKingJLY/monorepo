@@ -44,9 +44,18 @@ importers:
       react-dom:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.2.8)(react@19.2.3)
       react-router:
         specifier: ^7.9.5
         version: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react-syntax-highlighter:
+        specifier: ^16.1.0
+        version: 16.1.0(react@19.2.3)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       zustand:
         specifier: ^5.0.8
         version: 5.0.10(@types/react@19.2.8)(immer@11.1.3)(react@19.2.3)

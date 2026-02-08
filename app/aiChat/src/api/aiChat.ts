@@ -112,7 +112,8 @@ const getStreamData = async (
     messages: any[],
     onToken: (update: StreamUpdate) => void,
     onDone: () => void,
-    onError: (error: string) => void
+    onError: (error: string) => void,
+    signal?: AbortSignal
 ) => {
     // 指向你自己的 Spring Boot 后端
     // 假设后端运行在 localhost:8080
@@ -128,7 +129,8 @@ const getStreamData = async (
             },
             body: JSON.stringify({
                 messages: messages // 直接发给后端
-            })
+            }),
+            signal
         });
         if (!res.ok) {
             throw new Error(`HTTP Error ${res.status}`);
@@ -177,7 +179,11 @@ const getStreamData = async (
         // 循环结束即完成
         if (onDone) onDone();
 
-    } catch (error) {
+    } catch (error: any) {
+        if (error.name === 'AbortError') {
+            if (onDone) onDone();
+            return;
+        }
         console.log(error);
         if (onError) onError("错误");
     }

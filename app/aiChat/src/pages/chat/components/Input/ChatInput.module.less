@@ -12,36 +12,55 @@
     justify-content: center;
     width: 100%;
     position: sticky;
-    bottom: 10px;
+    bottom: 24px;
+    padding: 0 24px;
+    z-index: 50;
+}
+
+.chatForm {
+    width: 100%;
+    max-width: 800px;
+    transition: width 0.3s;
 }
 
 .inputWrapper {
-
     display: flex;
     flex-direction: row;
-    border-radius: 10px;
-    padding: 1%;
+    align-items: flex-end;
+    border-radius: 16px;
+    padding: 12px 16px;
     column-gap: 10px;
     background-color: var(--color-bg-base);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* 添加微弱边框 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    /* 增加阴影 */
+    transition: all 0.3s;
+
+    &:focus-within {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
 
     textarea {
         width: 100%;
+        background-color: transparent !important;
+        font-size: 15px;
+        line-height: 1.6;
+        padding: 4px 0;
+        /* 调整内边距以更好地对齐 */
+        margin: 0;
     }
 
     /* 针对 Webkit 内核 (Chrome, Safari, Edge) */
     textarea::-webkit-scrollbar {
-        width: 8px;
-        /* 纵向滚动条宽度 */
-        height: 8px;
-        /* 横向滚动条高度 */
+        width: 6px;
+        height: 6px;
     }
 
     /* 滚动条滑块 (The thumb) */
     textarea::-webkit-scrollbar-thumb {
         background-color: var(--color-bg-elevated);
-        /* 滑块颜色 */
-        border-radius: 4px;
-        /* 滑块圆角 */
+        border-radius: 3px;
     }
 
     /* 滚动条滑块悬停效果 */
@@ -51,9 +70,8 @@
 
     /* 滚动条轨道 (The track) */
     textarea::-webkit-scrollbar-track {
-        background-color: var(--color-text);
-        /* 轨道背景色 */
-        border-radius: 4px;
+        background-color: transparent;
+        border-radius: 3px;
     }
 
     textarea::-webkit-scrollbar-button {
@@ -62,11 +80,10 @@
 }
 
 .btnWrapper {
-    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    column-gap: 10px;
+    column-gap: 8px;
 }
 
 

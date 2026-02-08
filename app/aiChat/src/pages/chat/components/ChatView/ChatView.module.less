@@ -4,7 +4,7 @@
     height: 100%;
     overflow-y: auto;
     min-height: 0;
-    padding: 0px 20%;
+    padding: 20px 20%;
     min-width: 100%;
 }
 
@@ -25,7 +25,37 @@
     display: flex;
     margin-bottom: 24px;
     animation: fadeIn 0.3s ease-in-out;
+    /* 增加 padding 以便容纳可能的外部阴影或浮动元素 */
+    position: relative;
 }
+
+// .message:hover .tools {
+//     opacity: 1;
+// }
+
+.tools {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 0 4px;
+    transition: opacity 0.2s;
+    height: 24px;
+    align-items: center;
+}
+
+.userTools {
+    justify-content: flex-end;
+}
+
+.copyBtn {
+    color: #999;
+
+    &:hover {
+        color: var(--color-primary);
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+}
+
 
 .userMessage {
     flex-direction: row-reverse;
@@ -39,9 +69,6 @@
     margin-top: 4px;
 }
 
-.content {
-    margin: 0 12px;
-}
 
 .messageBubble {
     padding: 12px 16px;
@@ -49,6 +76,11 @@
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.6;
+    color: var(--color-text);
+    font-size: large;
+    background-color: var(--color-bg-base);
+    color: var(--color-text);
+    border-bottom-right-radius: 4px;
 }
 
 .reasoning {
@@ -62,16 +94,11 @@
 }
 
 .userBubble {
-    background-color: #1677ff;
-    color: white;
+    background-color: var(--color-primary);
+    color: #fff;
     border-bottom-right-radius: 4px;
 }
 
-.aiBubble {
-    background-color: rgba(0, 0, 0, 0.04);
-    color: inherit;
-    border-bottom-left-radius: 4px;
-}
 
 .reasoning {
     margin-bottom: 12px;

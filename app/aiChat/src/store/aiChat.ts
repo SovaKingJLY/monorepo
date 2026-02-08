@@ -22,10 +22,12 @@ interface multiChat {
     curSession: string;           // 当前会话 ID
     processList: string[];        // 正在生成的会话 ID 列表
     successList: string[];        // 生成成功的会话 ID 列表
+    abortControllers: Record<string, AbortController>;
 
     // --- Actions ---
     getChatDatas: (sessionId: string) => Promise<void>;
     sendMessage: (prompt: string) => Promise<void>;
+    stopMessage: () => void;
     addProcessList: (sessionId: string) => void;
     deleteProcessList: (sessionId: string) => void;
     addSuccessList: (sessionId: string) => void;
@@ -42,6 +44,7 @@ const useAiChatStore = create<multiChat>()((set, get) => {
         curSession: '',
         successList: [],
         processList: [],
+        abortControllers: {},
 
         // --- Actions ---
 
@@ -115,6 +118,16 @@ const useAiChatStore = create<multiChat>()((set, get) => {
             }));
         },
 
+        stopMessage: () => {
+            const { curSession, abortControllers } = get();
+            if (curSession && abortControllers[curSession]) {
+                abortControllers[curSession].abort();
+                const newControllers = { ...abortControllers };
+                delete newControllers[curSession];
+                set({ abortControllers: newControllers });
+            }
+        },
+
         // 核心：发送消息并处理流
         sendMessage: async (prompt: string) => {
             const { curSession, processList, addProcessList, deleteProcessList, addSuccessList, getChatDatas } = get();
@@ -172,6 +185,14 @@ const useAiChatStore = create<multiChat>()((set, get) => {
             // 6. 准备发送给 API 的消息（从最新的 State 中取，并去掉最后一个空占位）
             const currentSessionData = get().aiChatState[currentSessionId];
             const apiMessages = currentSessionData.chatDatas.slice(0, -1);
+
+            const controller = new AbortController();
+            set((state) => ({
+                abortControllers: {
+                    ...state.abortControllers,
+                    [currentSessionId]: controller
+                }
+            }));
 
             // 7. 调用流式请求
             await getStreamData(
@@ -258,7 +279,8 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                 (error: any) => {
                     deleteProcessList(currentSessionId);
                     console.error("Stream failed", error);
-                }
+                },
+                controller.signal
             );
         },
 

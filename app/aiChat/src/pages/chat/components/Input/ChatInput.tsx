@@ -10,7 +10,7 @@ type FieldType = {
 };
 
 export default function ChatInput() {
-    const { aiChatState, curSession, sendMessage, processList } = useAiChatStore();
+    const { aiChatState, curSession, sendMessage, processList, stopMessage } = useAiChatStore();
 
     // 获取 form 实例
     const [form] = Form.useForm();
@@ -19,17 +19,6 @@ export default function ChatInput() {
 
     // 定义限制条件：当 processList 长度小于等于2 时视为受限状态
     const isRestricted = processList.length > 2;
-
-    // 综合判断是否禁用按钮：正在加载中 OR 处于受限状态
-    const isButtonDisabled = isLoading || isRestricted;
-
-    // 动态计算按钮文字
-    let message = "发送";
-    if (isLoading) {
-        message = '发送中';
-    } else if (isRestricted) {
-        message = '请等待';
-    }
 
     const onFinish = async (values: FieldType) => {
         // 防止发送空内容（可选，但推荐）
@@ -57,9 +46,7 @@ export default function ChatInput() {
             <Form
                 form={form}
                 name="basic"
-                style={{
-                    width: '50%',
-                }}
+                className={styles.chatForm}
                 onFinish={onFinish}
                 autoComplete="off"
             >
@@ -79,15 +66,24 @@ export default function ChatInput() {
                             <Button icon={<UploadOutlined />} disabled={isLoading} type="text" />
                         </Form.Item>
                         <Form.Item noStyle>
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                // 【关键修改】这里同时判断加载状态和列表长度
-                                disabled={isButtonDisabled}
-                                icon={isLoading ? <LoadingOutlined /> : <SendOutlined />}
-                            >
-                                {message}
-                            </Button>
+                            {isLoading ?
+                                <Button
+                                    type="primary"
+                                    onClick={() => stopMessage()}
+                                    icon={<LoadingOutlined />}
+                                >
+                                    停止发送
+                                </Button> :
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    // 【关键修改】这里同时判断加载状态和列表长度
+                                    disabled={isRestricted}
+                                    icon={<SendOutlined />}
+                                >
+                                    {isRestricted ? "请等待" : "发送"}
+                                </Button>
+                            }
                         </Form.Item>
                     </div>
                 </div>

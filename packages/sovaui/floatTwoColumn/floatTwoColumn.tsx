@@ -17,6 +17,7 @@ const FloatTwoColumn = (props: floatTwoColumnProp) => {
                 style={{ height: "100%", position: "sticky", top: "0px" }}
                 trigger={null}
                 width={props.leftWidth}
+                theme="light"
                 collapsible
                 collapsed={props.isCollapsed}
                 // 【核心代码】设置收起后的宽度为 0
@@ -26,7 +27,9 @@ const FloatTwoColumn = (props: floatTwoColumnProp) => {
             >
                 {props.left}
             </Sider>
-            {props.right}
+            <div className={styles.rightContainer}>
+                {props.right}
+            </div>
 
         </div>
     </>

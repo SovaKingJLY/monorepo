@@ -57,18 +57,23 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
 
         sessionList.forEach((item: any) => {
             const currentList = map.get(item.updatedAt) || [];
-
+            const titleNode = (
+                <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item.title}
+                </span>
+            );
             const newItem = {
                 key: item.sessionId,
                 icon: <MessageOutlined />, // 加上图标，收起时才好看
                 label: (
-                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.title}
-                    </span>
-                    // <Tooltip placement="left" title={item.title} zIndex={999}>
-                    //     
-                    // </Tooltip>
-                ),
+                    item.title.length >= 20 ? (
+                        <Tooltip placement="left" title={item.title} zIndex={999}>
+                            {titleNode}
+                        </Tooltip>
+                    ) : (
+                        titleNode // 长度不够，直接用 span，不渲染 Tooltip 组件
+                    )
+                )
             };
             map.set(item.updatedAt, [...currentList, newItem]);
         });
@@ -117,6 +122,7 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             inlineIndent={16}
             inlineCollapsed={collapsed}
             selectedKeys={[selectedKey]}
+            defaultOpenKeys={['history-submenu']}
             items={menuItems}
             onClick={handleClick}
         />

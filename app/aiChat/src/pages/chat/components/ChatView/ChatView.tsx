@@ -3,14 +3,23 @@ import ChatInput from '../Input/ChatInput';
 import { useParams, useNavigate } from 'react-router';
 import useAiChatStore from '@/store/aiChat';
 import { useEffect, useRef } from 'react';
-import { Avatar } from 'antd';
-import { UserOutlined, RobotOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
+
+// 新增引入
+import { App, Button, Tooltip } from 'antd';
+import { CopyOutlined } from '@ant-design/icons';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function ChatView() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { curSession, aiChatState, getChatDatas, resetSession } = useAiChatStore();
+
+    // 获取 message 实例用于提示
+    const { message } = App.useApp();
 
     // 自动滚动到底部
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -18,31 +27,39 @@ export default function ChatView() {
     // 1. 监听路由参数变化，同步到 store
     useEffect(() => {
         if (id) {
-            // 如果 URL 有 ID，切换到该会话
             getChatDatas(id);
         } else {
-            // 如果 URL 没有 ID，说明是新对话状态，重置当前会话 ID
             resetSession();
         }
     }, [id, getChatDatas, resetSession]);
 
-    // 2. 监听 Store 的 curSession 变化，反向同步到 URL
-    // 主要用于：新对话第一次发送消息后，Store 生成了 ID，需要更新 URL
+    // 2. 监听 Store 的 curSession 变化
     useEffect(() => {
         if (curSession && curSession !== id) {
             navigate(`/chat/${curSession}`);
         }
     }, [curSession, id, navigate]);
 
-    // 优先使用路由参数中的 ID，如果没有则使用 store 中的 curSession
     const activeSessionId = id || curSession;
-    // 获取当前会话数据的 chatDatas
     const chatList = (activeSessionId && aiChatState[activeSessionId]) ? aiChatState[activeSessionId].chatDatas : [];
 
-    // 聊天列表更新时，自动滚动到底部
+    // 滚动到底部
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        console.log(chatList);
     }, [chatList.length, curSession]);
+
+    // 复制功能函数
+    const handleCopy = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            message.success("复制成功");
+        } catch (err) {
+            console.error('复制失败:', err);
+            message.error("复制失败");
+        }
+    };
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.chat}>
@@ -56,23 +73,56 @@ export default function ChatView() {
                                 [styles.aiMessage]: !isUser
                             })}
                         >
-                            {/* <div className={styles.avatar}>
-                                <Avatar
-                                    style={{ backgroundColor: isUser ? '#1677ff' : '#52c41a' }}
-                                    icon={isUser ? <UserOutlined /> : <RobotOutlined />}
-                                />
-                            </div> */}
                             <div className={styles.content}>
-                                <div className={styles.messageBubble} style={{
-                                    backgroundColor: isUser ? '#e6f7ff' : '#f6ffed',
-                                    border: isUser ? '1px solid #91caff' : '1px solid #b7eb8f'
-                                }}>
+                                <div className={classNames(styles.messageBubble, {
+                                    [styles.userBubble]: isUser
+                                })}>
+                                    {/* 思考过程内容 */}
                                     {item.reasoningContent && (
                                         <div className={styles.reasoning}>
                                             {item.reasoningContent}
                                         </div>
                                     )}
-                                    {item.content}
+
+                                    {/*主要内容 - 使用 ReactMarkdown 渲染 */}
+                                    {isUser ? <div>{item.content}</div> : <div className="markdown-body" style={{ overflow: 'hidden', lineHeight: '3.0' }}>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                code(props: any) {
+                                                    const { node, inline, className, children, ...rest } = props;
+                                                    const match = /language-(\w+)/.exec(className || '');
+                                                    return !inline && match ? (
+                                                        <SyntaxHighlighter
+                                                            {...rest}
+                                                            style={vscDarkPlus}
+                                                            language={match[1]}
+                                                            PreTag="div"
+                                                        >
+                                                            {String(children).replace(/\n$/, '')}
+                                                        </SyntaxHighlighter>
+                                                    ) : (
+                                                        <code className={className} {...rest}>
+                                                            {children}
+                                                        </code>
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {item.content.replace(/\n\n+/g, '\n')}
+                                        </ReactMarkdown>
+                                    </div>}
+                                </div>
+                                <div className={classNames(styles.tools, { [styles.userTools]: isUser })}>
+                                    <Tooltip title="复制">
+                                        <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<CopyOutlined />}
+                                            className={styles.copyBtn}
+                                            onClick={() => handleCopy(item.content)}
+                                        />
+                                    </Tooltip>
                                 </div>
                             </div>
                         </div>
