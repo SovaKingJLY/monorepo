@@ -2,7 +2,6 @@ import { Menu, Tooltip, type MenuProps } from "antd";
 import styles from './AiSiderMenu.module.less'
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
-// 引入图标以解决收起时不显示的问题
 import { PlusOutlined, HistoryOutlined, MessageOutlined } from "@ant-design/icons";
 import { getUserSessionList } from "@/api/session";
 import { useNavigate } from "react-router";
@@ -14,31 +13,33 @@ interface AiSiderMenuProp {
     collapsed: boolean;
 }
 
+
+const transformSessionData = (res: any) => {
+    const list = res?.data || [];
+    // 强烈建议：这里限制数量，比如只取前 50 条，否则 Antd 渲染压力太大
+    return list
+        .map((i: any) => ({
+            sessionId: i.sessionId,
+            title: i.title,
+            updatedAt: i.updatedAt?.slice(0, 10) || "未知日期",
+        }))
+        .sort((a: any, b: any) => b.updatedAt.localeCompare(a.updatedAt))
+        .slice(0, 50); // 🚀 性能优化：只渲染最近 50 条，防止 DOM 爆炸
+};
+
 export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
     const [selectedKey, setSelectedKey] = useState<string>('1');
-    const [openKeys, setOpenKeys] = useState<string[]>(['history-submenu']);
     const nav = useNavigate();
     const aiChatStore = useAiChatStore();
     // --- 数据获取逻辑修正 ---
+
+    useEffect(() => {
+        console.log("折叠/展开");
+    }, [collapsed])
     const { data: sessionList } = useQuery({
         queryKey: ['sessionList'],
         queryFn: () => getUserSessionList(),
-        select: (res: any) => {
-            console.log("原始接口返回:", res);
-
-            // 【关键修复点 1】
-            // 您的数据在 res.data 里面，而不是 res 本身
-            // 必须先取出数组，并做一个空数组兜底，防止报错
-            const list = res?.data || [];
-
-            // 【关键修复点 2】
-            // 现在 list 才是那个 Array(112)，可以调用 map 了
-            return list.map((i: any) => ({
-                sessionId: i.sessionId,
-                title: i.title,
-                updatedAt: i.updatedAt?.slice(0, 10) || "未知日期", // 防止日期为空报错
-            })).sort((a: any, b: any) => b.updatedAt.localeCompare(a.updatedAt));
-        }
+        select: transformSessionData,
     });
 
     // --- 菜单组装逻辑 ---
@@ -61,11 +62,12 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
                 key: item.sessionId,
                 icon: <MessageOutlined />, // 加上图标，收起时才好看
                 label: (
-                    <Tooltip placement="left" title={item.title} zIndex={999}>
-                        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {item.title}
-                        </span>
-                    </Tooltip>
+                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {item.title}
+                    </span>
+                    // <Tooltip placement="left" title={item.title} zIndex={999}>
+                    //     
+                    // </Tooltip>
                 ),
             };
             map.set(item.updatedAt, [...currentList, newItem]);
@@ -96,14 +98,6 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
         ];
     }, [sessionList]);
 
-    // 监听 collapsed 变化，收起时清空展开项
-    useEffect(() => {
-        if (collapsed) {
-            setOpenKeys([]);
-        } else {
-            setOpenKeys(['history-submenu']);
-        }
-    }, [collapsed]);
 
     const handleClick: MenuProps['onClick'] = async ({ key }) => {
         setSelectedKey(key);
@@ -115,11 +109,6 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             aiChatStore.getChatDatas(key);
         }
     }
-
-    const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
-        setOpenKeys(keys);
-    };
-
     return (
         <Menu
             style={{ height: "100%", overflowY: "auto", borderRight: 0 }}
@@ -128,8 +117,6 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             inlineIndent={16}
             inlineCollapsed={collapsed}
             selectedKeys={[selectedKey]}
-            openKeys={openKeys}
-            onOpenChange={onOpenChange}
             items={menuItems}
             onClick={handleClick}
         />

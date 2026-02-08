@@ -33,7 +33,7 @@ export default function ChatPage() {
                 <Button type="primary" shape="circle" icon={<MoonOutlined />} onClick={toDark} />
             </Tooltip>
             <Tooltip title="search">
-                <Button shape="circle" icon={<SearchOutlined onClick={() => { setCollapsed(!collapsed) }} />} />
+                <Button shape="circle" icon={<SearchOutlined />} onClick={() => { setCollapsed(!collapsed) }} />
             </Tooltip>
         </div>
         <div className={styles.content}>
