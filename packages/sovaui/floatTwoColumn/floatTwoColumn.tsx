@@ -1,6 +1,6 @@
-import { Button, Layout } from 'antd';
+import { Button, Layout, theme } from 'antd';
 import styles from './floatTwoColumn.module.less';
-import { useState, type ReactElement, type ReactNode } from 'react';
+import { useState, type ReactElement, type ReactNode, type CSSProperties } from 'react';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -12,14 +12,22 @@ interface floatTwoColumnProp {
     // 新增 title 属性，类型为 ReactNode 这样既传字符串也可以传组件
     title?: ReactNode;
     isCollapsed: boolean,
+    contentWidth?: number,
 }
 
-const FloatTwoColumn = (props: floatTwoColumnProp) => {
-    // 使用内部状态控制折叠，保证组件开箱即用
-    // const [isCollapsed, setIsCollapsed] = useState(false);
+const FloatTwoColumn = ({ contentWidth = 800, ...props }: floatTwoColumnProp) => {
+    const { token } = theme.useToken();
+
+    // 定义组件局部的 CSS 变量，使得本组件不依赖全局 GlobalStyle，实现自包含
+    const cssVarStyle = {
+        '--color-bg-base': token.colorBgContainer,
+        '--color-text': token.colorText,
+        '--color-border': token.colorBorderSecondary, // 假设 less 里未来可能会用到边框
+        // 如果有其他用到的变量，可以在这里继续补充映射
+    } as CSSProperties;
 
     return (
-        <Layout className={styles.layoutWrapper}>
+        <Layout className={styles.layoutWrapper} style={cssVarStyle}>
             {/* 左侧侧边栏 */}
             <Sider
                 trigger={null}
@@ -27,10 +35,9 @@ const FloatTwoColumn = (props: floatTwoColumnProp) => {
                 collapsed={props.isCollapsed}
                 width={props.leftWidth}
                 collapsedWidth={0}
-                theme="light"
+                // theme="light"
                 className={styles.sider}
                 style={{
-                    borderRight: '1px solid #f0f0f0',
                     overflow: 'hidden',
                     height: '100vh',
                     position: 'sticky',
@@ -38,34 +45,16 @@ const FloatTwoColumn = (props: floatTwoColumnProp) => {
                     zIndex: 10
                 }}
             >
-                <div style={{ width: props.leftWidth, padding: '10px' }}>
-                    {props.left}
-                </div>
+                {props.left}
             </Sider>
 
             {/* 右侧主内容区 */}
             <div className={styles.rightContainer}>
-                {/* 顶部 Header：包含折叠按钮 和 Title */}
                 <div className={styles.headerBar}>
-                    {/* <Button
-                        type="text"
-                        icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={styles.triggerButton}
-                    /> */}
-
-                    {/* 标题区域
-                    {props.title && (
-                        <div className={styles.headerTitle}>
-                            {props.title}
-                        </div>
-                    )} */}
                     {props.title}
                 </div>
-
-                {/* 核心内容区域：独立滚动 */}
                 <div className={styles.contentScrollArea}>
-                    <div className={styles.contentWrapper}>
+                    <div className={styles.contentWrapper} style={{ padding: `0 calc((100% - ${contentWidth}px) / 2)` }}>
                         {props.right}
                     </div>
                 </div>
