@@ -66,7 +66,7 @@ export default function ChatView() {
         }
     };
 
-    return (
+    return <>
         <div className={classNames(styles.wrapper, { [styles.homeWrapper]: isHome })}>
             <div className={styles.chat}>
                 {chatList.map((item, index) => {
@@ -144,7 +144,7 @@ export default function ChatView() {
                 <div ref={bottomRef} style={{ float: "left", clear: "both" }} />
             </div>
             {isHome && <h2 className={styles.welcomeTitle}>今天有什么可以帮到你？</h2>}
-            <ChatInput className={isHome ? styles.homeInput : undefined} />
         </div>
-    );
+        <ChatInput className={isHome ? styles.homeInput : undefined} />
+    </>
 }

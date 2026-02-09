@@ -10,37 +10,13 @@
     // 关键：设置变换原点为 React 传进来的变量
     transform-origin: var(--origin-x, center) var(--origin-y, center);
 
-    display: flex;
+    display: none;
     flex-direction: column;
     z-index: 99999;
-
-    // 默认稍微缩小一点，或者完全隐藏，由 show 类控制
-    transform: scale(0);
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s; // 如果不想要关闭动画，这行可以去掉，只保留animation
-}
-
-// 定义进入动画
-@keyframes zoomInEffect {
-    0% {
-        opacity: 0;
-        transform: scale(0); // 从 0 开始，就像从按钮里冒出来
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1); // 恢复正常大小
-    }
 }
 
 .show {
-    // 只应用这一个动画即可
-    // cubic-bezier 让弹窗有种“嘭”弹出来的弹性感
-    animation: zoomInEffect 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-
-    // 确保动画结束后保持最终状态
-    transform: scale(1);
-    opacity: 1;
+    display: flex;
 }
 
 .title {
@@ -136,7 +112,6 @@
 
 .content {
     width: 100%;
-    height: 100vh;
     display: flex;
     justify-content: center;
     min-height: 0;
@@ -146,6 +121,7 @@
 .left {
     max-height: 100vh;
 }
+
 .pageContainer {
     position: relative;
     width: 100%;
@@ -164,7 +140,7 @@
     background-color: var(--color-bg-base, #fff);
     transition: transform 0.3s ease;
     transform: translateX(0);
-    border-right: 1px solid rgba(0,0,0,0.05);
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
 
     &.collapsed {
         transform: translateX(-100%);
@@ -177,4 +153,3 @@
     flex: 1;
     overflow: hidden;
 }
-

@@ -1,18 +1,67 @@
-.twoColumn {
-    display: flex;
-    flex-direction: row;
+.layoutWrapper {
+    height: 100vh;
     width: 100%;
+    display: flex;
     overflow: hidden;
 }
 
-.rightContainer {
-    flex: 0 0 100%;
-    width: 100%;
+.sider {
+    background: #fff !important;
 }
 
-.right {
-    // display: flex;
-    // justify-content: center;
-    // width: 50%;
-    // margin: 0 10px;
+.rightContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column; // 垂直排列：上面是 Header，下面是滚动内容
+    height: 100%;
+    background: #fff;
+    min-width: 0;
+    position: relative;
+    transition: all 0.2s;
+}
+
+// 顶部工具栏样式
+.headerBar {
+    // 关键：防止头部被压缩
+    flex-shrink: 0;
+    // 布局
+    display: flex;
+    align-items: center;
+    height: 56px; // 给一个固定高度，类似常规导航栏
+    padding: 0 16px;
+    // 可选：加个底边框区分内容区
+    // border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+}
+
+.triggerButton {
+    margin-right: 12px; // 按钮和标题之间的间距
+    color: #666;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #333;
+    }
+}
+
+.headerTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    // 溢出省略处理 (如果标题很长)
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contentScrollArea {
+    flex: 1;
+    overflow-y: auto; // 只有这里滚动
+}
+
+.contentWrapper {
+
+    padding: 0 calc((100% - 600px) / 2);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }

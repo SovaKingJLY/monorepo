@@ -47,7 +47,7 @@ export default function ChatInput(props: ChatInputProps) {
     // };
 
     return (
-        <div className={classNames(styles.input, props.className)}>
+        <div className={styles.input}>
             <Form
                 form={form}
                 name="basic"

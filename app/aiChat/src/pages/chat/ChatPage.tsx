@@ -3,8 +3,8 @@ import styles from './ChatPage.module.less';
 import AiSiderMenu from './components/Menu/AiSiderMenu';
 import ChatView from './components/ChatView/ChatView';
 import { useState } from 'react';
-import { Button, Tooltip } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, SearchOutlined, OpenAIOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, OpenAIOutlined } from '@ant-design/icons';
 import useDarkStore from '@/store/darkMode';
 import { FloatTwoColumn } from '@repo/sovaui';
 
@@ -28,20 +28,19 @@ export default function ChatPage() {
             <AiSiderMenu collapsed={collapsed} />
         </div>
     </div>
-    const right = <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-        <div className={styles.collBtn}>
-            <Button shape="circle" icon={<MoonOutlined />} onClick={toDark} />
-            <Button shape="circle" onClick={() => { setCollapsed(!collapsed) }} style={{ marginBottom: 16 }}>
-                {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </Button>
+    const right =
+        <ChatView />
+    const title = <div className={styles.collBtn}>
+        <Button shape="circle" icon={<MoonOutlined />} onClick={toDark} />
+        <Button shape="circle" onClick={() => { setCollapsed(!collapsed) }} style={{ marginBottom: 16 }}>
+            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
+        <div>
+            测试标题
         </div>
-        <div className={styles.content}>
-            <ChatView />
-        </div>
-
     </div>
     return <>
-        <FloatTwoColumn left={left} right={right} isCollapsed={collapsed} leftWidth={300}>
+        <FloatTwoColumn left={left} right={right} isCollapsed={collapsed} leftWidth={300} title={title}>
         </FloatTwoColumn>
         {/* <div className={styles.twoColumn}>
             <Sider
