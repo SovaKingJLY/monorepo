@@ -1,6 +1,7 @@
 import http from './http';
 
 export const uploadAiChatData = async (chatData: chatData, sessionId: string, parentId: string | number): Promise<ApiResponse<string>> => {
+    console.log("发送消息");
     return await http.post('/chat/add/', {
         // 直接发送平铺的数据
         parentId: parentId,

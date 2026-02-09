@@ -171,11 +171,8 @@ const useAiChatStore = create<multiChat>()((set, get) => {
 
             // [新增] 上传用户消息
             try {
-                const currentSession = get().aiChatState[currentSessionId];
-                // 获取当前的 parentId
-                const parentId = currentSession.parentId || 0;
                 // 调用 API 上传
-                await uploadAiChatData(userMsg, currentSessionId, parentId);
+                await uploadAiChatData(userMsg, currentSessionId, 0);
                 // 通知 sessionList 更新
                 queryClient.invalidateQueries({ queryKey: ['sessionList'] });
             } catch (e) {
@@ -212,7 +209,6 @@ const useAiChatStore = create<multiChat>()((set, get) => {
                         // 3. 增量更新
                         if (update.content) lastMsg.content += update.content;
                         if (update.reasoning) lastMsg.reasoningContent = (lastMsg.reasoningContent || "") + update.reasoning;
-                        console.log(update, "这里");
                         // 4. 放回数组
                         newChatDatas[lastIndex] = lastMsg;
 

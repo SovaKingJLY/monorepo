@@ -12,6 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import remarkBreaks from 'remark-breaks';
 
 export default function ChatView() {
     const { id } = useParams();
@@ -41,7 +42,12 @@ export default function ChatView() {
     }, [curSession, id, navigate]);
 
     const activeSessionId = id || curSession;
-    const chatList = (activeSessionId && aiChatState[activeSessionId]) ? aiChatState[activeSessionId].chatDatas : [];
+    const currentSessionData = activeSessionId ? aiChatState[activeSessionId] : undefined;
+    const chatList = currentSessionData ? currentSessionData.chatDatas : [];
+    const isGenerating = currentSessionData?.isSteamEnd === false;
+
+    // 是否为首页（无会话ID）
+    const isHome = !id;
 
     // 滚动到底部
     useEffect(() => {
@@ -61,10 +67,13 @@ export default function ChatView() {
     };
 
     return (
-        <div className={styles.wrapper}>
+        <div className={classNames(styles.wrapper, { [styles.homeWrapper]: isHome })}>
             <div className={styles.chat}>
                 {chatList.map((item, index) => {
                     const isUser = item.role === 'user';
+                    const isLastMessage = index === chatList.length - 1;
+                    const showCopy = isUser || !isLastMessage || !isGenerating;
+
                     return (
                         <div
                             key={index}
@@ -72,8 +81,9 @@ export default function ChatView() {
                                 [styles.userMessage]: isUser,
                                 [styles.aiMessage]: !isUser
                             })}
+
                         >
-                            <div className={styles.content}>
+                            <div className={classNames({ [styles.content]: !isUser })}>
                                 <div className={classNames(styles.messageBubble, {
                                     [styles.userBubble]: isUser
                                 })}>
@@ -85,7 +95,7 @@ export default function ChatView() {
                                     )}
 
                                     {/*主要内容 - 使用 ReactMarkdown 渲染 */}
-                                    {isUser ? <div>{item.content}</div> : <div className="markdown-body" style={{ overflow: 'hidden', lineHeight: '3.0' }}>
+                                    {isUser ? <div>{item.content}</div> : <div className="markdown-body" style={{ overflow: 'hidden' }}>
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
@@ -111,18 +121,21 @@ export default function ChatView() {
                                         >
                                             {item.content.replace(/\n\n+/g, '\n')}
                                         </ReactMarkdown>
+                                        {/* {item.content} */}
                                     </div>}
                                 </div>
                                 <div className={classNames(styles.tools, { [styles.userTools]: isUser })}>
-                                    <Tooltip title="复制">
-                                        <Button
-                                            type="text"
-                                            size="small"
-                                            icon={<CopyOutlined />}
-                                            className={styles.copyBtn}
-                                            onClick={() => handleCopy(item.content)}
-                                        />
-                                    </Tooltip>
+                                    {showCopy && (
+                                        <Tooltip title="复制">
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<CopyOutlined />}
+                                                className={styles.copyBtn}
+                                                onClick={() => handleCopy(item.content)}
+                                            />
+                                        </Tooltip>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -130,7 +143,8 @@ export default function ChatView() {
                 })}
                 <div ref={bottomRef} style={{ float: "left", clear: "both" }} />
             </div>
-            <ChatInput />
+            {isHome && <h2 className={styles.welcomeTitle}>今天有什么可以帮到你？</h2>}
+            <ChatInput className={isHome ? styles.homeInput : undefined} />
         </div>
     );
 }

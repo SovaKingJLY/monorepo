@@ -2,6 +2,7 @@ import { Button, Form, Input } from "antd";
 import styles from './ChatInput.module.less';
 import { UploadOutlined, SendOutlined, LoadingOutlined } from '@ant-design/icons';
 import useAiChatStore from "@/store/aiChat";
+import classNames from 'classnames';
 
 const { TextArea } = Input;
 
@@ -9,7 +10,11 @@ type FieldType = {
     prompt?: string;
 };
 
-export default function ChatInput() {
+interface ChatInputProps {
+    className?: string;
+}
+
+export default function ChatInput(props: ChatInputProps) {
     const { aiChatState, curSession, sendMessage, processList, stopMessage } = useAiChatStore();
 
     // 获取 form 实例
@@ -42,7 +47,7 @@ export default function ChatInput() {
     // };
 
     return (
-        <div className={styles.input}>
+        <div className={classNames(styles.input, props.className)}>
             <Form
                 form={form}
                 name="basic"
