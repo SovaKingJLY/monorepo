@@ -1,0 +1,35 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router';
+import { registerMicroApps, start } from 'qiankun';
+import App from './App';
+import 'antd/dist/reset.css'; // Ant Design 5 样式重置 (v5 默认不需要 import css 但为了保险)
+
+// 注册子应用
+registerMicroApps([
+    {
+        name: 'aiChat',
+        entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
+        container: '#subapp-viewport',
+        activeRule: '/app/aiChat',
+    },
+    {
+        name: 'notebook',
+        entry: '//localhost:5175',
+        container: '#subapp-viewport',
+        activeRule: '/app/notebook',
+    },
+]);
+
+// 启动 qiankun
+start();
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/*" element={<App />} />
+            </Routes>
+        </BrowserRouter>
+    </React.StrictMode>,
+);
