@@ -6,6 +6,7 @@ import uploadBundleQiniu from '@repo/qiniu';
 //import qiniu from 'vite-plugin-qiniu'; // 引入插件
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import qiankun from 'vite-plugin-qiankun';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -15,6 +16,9 @@ export default defineConfig(({ mode }) => {
     envDir: './env',
     base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : '/', //CDN
     plugins: [
+      qiankun('notebook', { // 'reactApp' 替换为你微应用实际的名字
+        useDevMode: true
+      }),
       react(),
       uploadBundleQiniu({
         accessKey: 'EIriimCUVKCk0G4gCFACezpYSZFvpZ6L8IvQqYUR',
@@ -26,12 +30,6 @@ export default defineConfig(({ mode }) => {
           assets: 31536000
         }
       })
-      // qiniu({
-      //   accessKey: 'EIriimCUVKCk0G4gCFACezpYSZFvpZ6L8IvQqYUR',
-      //   secretKey: 'oN_nA1SkDFDOpjxf3c4gfw_LGwtEGBb9TV-yzsDE',
-      //   bucket: 'jlyred',
-      //   rootName: "vite",
-      // })
     ],
     resolve: {
       alias: {
@@ -54,6 +52,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
+      port: 5175, // 强制锁定端口，不要让它自动变
+      strictPort: true, // 如果端口被占用，直接报错而不是尝试下一个
       proxy: {//服务器代理，防止跨域报错
         '/api': { // 1. 拦截指令：管家，凡是看到 '/api' 开头的请求，都要拦下来处理
 

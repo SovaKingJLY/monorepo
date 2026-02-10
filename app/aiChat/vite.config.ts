@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path' // 引入 Node.js 的 path 模块
+import qiankun from 'vite-plugin-qiankun';
 // https://vite.dev/config/
 export default defineConfig({
   envDir: './env',
+
   plugins: [
+    qiankun('aiChat', { // 'reactApp' 替换为你微应用实际的名字
+      useDevMode: true
+    }),
     react({
       babel: {
         plugins: [['babel-plugin-react-compiler']],
@@ -18,6 +23,8 @@ export default defineConfig({
     }
   },
   server: {
+    port: 5174, // 强制锁定端口，不要让它自动变
+    strictPort: true, // 如果端口被占用，直接报错而不是尝试下一个
     proxy: {//服务器代理，防止跨域报错
       '/api': { // 1. 拦截指令：管家，凡是看到 '/api' 开头的请求，都要拦下来处理
 
