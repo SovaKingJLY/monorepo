@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router";
+import { qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 import MainLayout from "../layout/mainLayout/mainLayout";
 import NotFound from "../pages/404/notFound";
 import AuthGuard from "./guard";
@@ -74,5 +75,7 @@ const router = createBrowserRouter([
         path: '/*',
         element: <NotFound />
     }
-]);
+], {
+    basename: qiankunWindow.__POWERED_BY_QIANKUN__ ? '/app/notebook' : '/'
+});
 export default router;

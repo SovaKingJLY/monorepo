@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import uploadBundleQiniu from '@repo/qiniu';
+import qiankun from 'vite-plugin-qiankun';
 //import qiniu from 'vite-plugin-qiniu'; // 引入插件
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import qiankun from 'vite-plugin-qiankun';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -14,12 +14,13 @@ export default defineConfig(({ mode }) => {
   console.log(isProduction)
   return {
     envDir: './env',
-    base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : '/', //CDN
+    base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : 'http://localhost:5175/', //CDN
     plugins: [
-      qiankun('notebook', { // 'reactApp' 替换为你微应用实际的名字
+      react(),
+      qiankun('notebook', {
         useDevMode: true
       }),
-      react(),
+
       uploadBundleQiniu({
         accessKey: 'EIriimCUVKCk0G4gCFACezpYSZFvpZ6L8IvQqYUR',
         secretKey: 'oN_nA1SkDFDOpjxf3c4gfw_LGwtEGBb9TV-yzsDE',
@@ -54,6 +55,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5175, // 强制锁定端口，不要让它自动变
       strictPort: true, // 如果端口被占用，直接报错而不是尝试下一个
+      origin: 'http://localhost:5175',
+      cors: {
+        origin: 'http://localhost:3000', // 允许主应用访问
+        credentials: true,
+      },
       proxy: {//服务器代理，防止跨域报错
         '/api': { // 1. 拦截指令：管家，凡是看到 '/api' 开头的请求，都要拦下来处理
 
