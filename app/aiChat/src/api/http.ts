@@ -2,7 +2,7 @@ import axios from 'axios';
 import useUserStore from '@/store/user';
 
 const http = axios.create({
-    baseURL: 'http://124.221.73.180:3002',
+    baseURL: import.meta.env.VITE_BASE_URL,
     timeout: 10000,
 });
 

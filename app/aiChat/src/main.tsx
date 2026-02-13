@@ -2,6 +2,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import App from './App.tsx';
 import { App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 
 // 创建 QueryClient 实例
 const queryClient = new QueryClient();
@@ -30,7 +31,9 @@ function render(props: QiankunProps) {
     : document.getElementById('root');
 
   if (targetDom) {
-    root = createRoot(targetDom);
+    if (!root) {
+      root = createRoot(targetDom);
+    }
     root.render(
       <AntdApp>
         <QueryClientProvider client={queryClient}>
@@ -39,15 +42,37 @@ function render(props: QiankunProps) {
       </AntdApp>
     );
   } else {
-    console.error('Root element not found');
+    if (!qiankunWindow.__POWERED_BY_QIANKUN__ || props?.container) {
+      console.error('Root element not found');
+    }
   }
 }
+
+renderWithQiankun({
+  mount(props) {
+    console.log('aiChat mount', props);
+    render(props);
+  },
+  bootstrap() {
+    console.log('aiChat bootstrap');
+  },
+  unmount(_props: any) {
+    console.log('aiChat unmount');
+    if (root) {
+      root.unmount();
+      root = null;
+    }
+  },
+  update(props: any) {
+    console.log('aiChat update', props);
+  },
+});
 
 /**
  * 判断是否独立运行
  * 如果不是被 qiankun 加载的，直接 render，方便单独开发调试
  */
-if (!(window as any).__POWERED_BY_QIANKUN__) {
+if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
   render({});
 }
 
