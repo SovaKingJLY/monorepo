@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useBlocker, useNavigate, useSearchParams } from 'react-router';
 import useDarkStore from '../../store/darkMode';
 import { getTags, getText, updateText, uploadText } from '@/api/http/text/textRequest';
+import { qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
+import { getAssetUrl } from '@/utils/asset-path';
 
 
 interface FieldType {
@@ -207,7 +209,7 @@ export default function Upload() {
                         <Form.Item>
                             <div className={styles.editorWrapper}>
                                 <Editor
-                                    tinymceScriptSrc='/tinymce/tinymce.min.js'
+                                    tinymceScriptSrc={getAssetUrl('/tinymce/tinymce.min.js')}
                                     licenseKey='gpl'
                                     onInit={(_evt, editor) => editorRef.current = editor}
                                     initialValue={content}

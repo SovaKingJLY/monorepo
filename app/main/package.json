@@ -10,6 +10,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@ant-design/icons": "^5.6.1",
         "antd": "^5.28.1",
         "qiankun": "^2.10.16",
         "react": "^19.2.0",
@@ -17,11 +18,11 @@
         "react-router": "^7.1.5"
     },
     "devDependencies": {
+        "@repo/tsconfig": "workspace:*",
+        "@types/node": "^24.10.1",
         "@types/react": "^19.2.5",
         "@types/react-dom": "^19.2.3",
-        "@types/node": "^24.10.1",
         "@vitejs/plugin-react": "^5.1.1",
-        "@repo/tsconfig": "workspace:*",
         "typescript": "~5.9.3",
         "vite": "^7.2.4"
     }

@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { registerMicroApps, start } from 'qiankun';
 import App from './App';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import 'antd/dist/reset.css'; // Ant Design 5 样式重置 (v5 默认不需要 import css 但为了保险)
 
 // 注册子应用
@@ -28,6 +30,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <BrowserRouter>
             <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/*" element={<App />} />
             </Routes>
         </BrowserRouter>

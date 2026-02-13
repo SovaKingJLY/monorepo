@@ -1,7 +1,10 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router'; // 注意：react-router-dom v6+ 这里的包名可能是 react-router-dom
+import { Button } from 'antd';
+import { Link, Outlet, useNavigate } from 'react-router'; // 注意：react-router-dom v6+ 这里的包名可能是 react-router-dom
 
 const App = () => {
+    const navigate = useNavigate();
+
     return (
         <div style={styles.container}>
             {/* 左侧侧边栏 */}
@@ -18,6 +21,12 @@ const App = () => {
                         </li>
                     </ul>
                 </nav>
+
+                <div style={{ marginTop: 'auto', padding: '20px' }}>
+                    <Button type="primary" block onClick={() => navigate('/login')}>
+                        登录
+                    </Button>
+                </div>
             </aside>
 
             {/* 右侧主内容区 */}

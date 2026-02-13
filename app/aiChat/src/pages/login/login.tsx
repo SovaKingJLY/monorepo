@@ -19,7 +19,8 @@ export default function Login() {
                 setAccessToken(token);
                 messageApi.success('登录成功');
                 setTimeout(() => {
-                    navigate('/');
+                    navigate('/chat');
+                    console.log("跳转");
                 }, 500);
             } else {
                 console.log('Login response:', res);
