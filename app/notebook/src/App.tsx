@@ -10,6 +10,7 @@ import { GlobalStyle } from '@repo/antd_config/GlobalStyle'
 
 import 'nprogress/nprogress.css';
 import { getInfo } from './api/http/text/textRequest'
+import { loginCheck } from './api/http/admin/adminRequest'
 
 function App() {
   const AiChat = lazy(() => import('./components/AIChat/AiChat'));
@@ -23,19 +24,37 @@ function App() {
   }, [isDark])
 
   useEffect(() => {//取出token,设置全局变量,和后端进行检验
+
     const init = async () => {
-      if (UserStore.accessToken) {
-        try {
-          const res = await getInfo();
-          UserStore.setAccessToken(res.accessToken);
-          UserStore.setRole(res.role);
-          UserStore.setIsLoading(false);
-        } catch {
-          UserStore.logout();
-          UserStore.setIsLoading(false);
-        }
-      } else UserStore.setIsLoading(false);
+      try {
+        await loginCheck();
+        const res = await getInfo();
+        console.log(res, "这里");
+        UserStore.setIsLogin(true);
+        UserStore.setRole('管理员');//目前就管理员
+        UserStore.setIsLoading(false);
+        console.log("登录成功这里");
+      } catch {
+        UserStore.setIsLoading(false);
+        UserStore.logout();
+        console.log("登录失效");
+      }
     }
+    // loginCheck().then((check) => {
+    //   console.log(check, "这里");
+    //   try {
+    //     const res = await getInfo();
+    //     UserStore.setRole(res.role);
+    //     UserStore.setIsLoading(false);
+    //   } catch {
+    //     UserStore.logout();
+    //     UserStore.setIsLoading(false);
+    //   }
+    // }).catch(() => {
+    //   console.log("登录失效");
+    //   // 错误在拦截器中处理
+    // });
+
     init();
   }, [])
 
@@ -45,11 +64,11 @@ function App() {
       {/* ConfigProvider用于配置antd的react context传递css in js信息，而GlobalStyle用于将css in js的数据转换成全局css变量 */}
       <ConfigProvider theme={themeConfig}>
         <GlobalStyle></GlobalStyle>
-        {UserStore.role &&
+        {/* {UserStore.role &&
           <Suspense fallback={<div></div>}>
             <AiChat></AiChat>
           </Suspense>
-        }
+        } */}
         <RouterProvider router={router} />
       </ConfigProvider>
     </>

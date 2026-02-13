@@ -4,6 +4,8 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router';
 // 如果报错找不到 react-router，请检查是否应该用 react-router-dom，这里沿用 main.tsx 的风格
 import { login, type LoginParams } from '../api/auth';
+import styles from './Login.module.css';
+import { loginRequest } from '@/api/login';
 
 const { Title } = Typography;
 
@@ -11,30 +13,44 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const onFinish = async (values: LoginParams) => {
+    const onFinish = async (value: LoginParams) => {
         setLoading(true);
         try {
-            await login(values);
+            await loginRequest({ email: value.email || '', password: value.password || '', remember: value.remember || false });
             message.success('登录成功');
             // 登录成功后跳转到首页或之前访问的页面
             navigate('/');
         } catch (error) {
             console.error(error);
-            message.error('登录失败，请重试');
+            // message.error('登录失败，请重试'); // api interceptor 已经有了错误提示
         } finally {
             setLoading(false);
         }
     };
+    const validateEmail = (_: any, value: string) => {
+        const emailRegex = /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!value) {
+
+            return Promise.reject(new Error("请输入邮箱"))
+        }
+        else if (!emailRegex.test(value)) {
+
+            return Promise.reject(new Error('请输入正确的邮箱地址'))
+        }
+        else {
+
+            return Promise.resolve()
+        };
+    }
 
     return (
-        <div style={styles.container}>
+        <div className={styles.container}>
             <Card
-                style={styles.card}
-                bodyStyle={{ padding: '40px' }}
+                className={styles.card}
                 hoverable
             >
-                <div style={styles.header}>
-                    <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
+                <div className={styles.header}>
+                    <Title level={2} className={styles.title}>
                         系统登录
                     </Title>
                 </div>
@@ -47,21 +63,22 @@ const Login: React.FC = () => {
                     size="large"
                 >
                     <Form.Item
-                        name="username"
-                        rules={[{ required: true, message: '请输入用户名!' }]}
+                        name="email"
+
+                        rules={[{ required: true, validator: validateEmail }]}
                     >
                         <Input
-                            prefix={<UserOutlined className="site-form-item-icon" />}
-                            placeholder="用户名"
+                            prefix={<UserOutlined className={styles.siteFormItemIcon} />}
+                            placeholder="邮箱"
                         />
                     </Form.Item>
 
                     <Form.Item
                         name="password"
-                        rules={[{ required: true, message: '请输入密码!' }]}
+                        rules={[{ required: true, message: '请输入密码' }]}
                     >
                         <Input.Password
-                            prefix={<LockOutlined className="site-form-item-icon" />}
+                            prefix={<LockOutlined className={styles.siteFormItemIcon} />}
                             type="password"
                             placeholder="密码"
                         />
@@ -71,17 +88,13 @@ const Login: React.FC = () => {
                         <Form.Item name="remember" valuePropName="checked" noStyle>
                             <Checkbox>记住我</Checkbox>
                         </Form.Item>
-
-                        <a className="login-form-forgot" href="" style={{ float: 'right' }}>
-                            忘记密码
-                        </a>
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" className="login-form-button" block loading={loading}>
+                        <Button type="primary" htmlType="submit" className={styles.loginFormButton} block loading={loading}>
                             登录
                         </Button>
-                        <div style={{ marginTop: 16, textAlign: 'center' }}>
+                        <div className={styles.registerLink}>
                             或者 <Link to="/register">立即注册!</Link>
                         </div>
                     </Form.Item>
@@ -89,25 +102,6 @@ const Login: React.FC = () => {
             </Card>
         </div>
     );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: '#f0f2f5', // 这是一个浅灰色背景，类似 Ant Design Pro
-        backgroundImage: 'url("https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg")', // 可选背景纹理
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center 110px',
-        backgroundSize: '100%',
-    },
-    card: {
-        width: 400,
-        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
-        borderRadius: '8px',
-    },
 };
 
 export default Login;

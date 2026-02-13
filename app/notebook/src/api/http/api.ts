@@ -24,7 +24,6 @@ http.interceptors.response.use(//接收时的拦截器
     async (response) => {//网络上没错
         console.log(response);
         if (response.data.code < 300) {
-            console.log(response.data);
             return response.data.data;
         }
         else if (response.data.code == 401) {//当accesstoken过期时

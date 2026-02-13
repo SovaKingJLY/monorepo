@@ -33,7 +33,7 @@ export default function Login() {
     const onFinish: FormProps<FieldType>['onFinish'] = async (value) => {//values是填入的值
         try {
             message.loading({ content: '正在加载...', key: "login" });
-            const res = await loginRequest({ email: value.email, password: value.password, remember: value.remember });
+            const res = await loginRequest({ email: value.email ?? "", password: value.password ?? "", remember: value.remember ?? false });
             if (form.getFieldValue('remember')) {
                 UserStore.setAccessToken(res.accessToken);
                 UserStore.setRole(res.role);

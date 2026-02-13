@@ -118,8 +118,9 @@ export default function Left(prop: leftProp) {
                 <Skeleton loading={UserStore.isLoading} paragraph={{ rows: 4 }}>
                     <>
                         {
-                            UserStore.accessToken ?
+                            UserStore.isLogin ?
                                 <>
+
                                     {UserStore.role == '管理员' ? <><ButtonList path='/admin/upload/' >上传</ButtonList></> : ''}
                                     <div onClick={() => { logout() }} style={{ width: "100%" }}>
                                         <ButtonList >注销</ButtonList>

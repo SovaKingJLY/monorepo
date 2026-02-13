@@ -1,6 +1,9 @@
+import { http } from "./http";
+
+
 // 预留的登录注册接口
 export interface LoginParams {
-    username?: string;
+    email?: string;
     password?: string;
     remember?: boolean;
 }
@@ -13,13 +16,14 @@ export interface RegisterParams {
 }
 
 export const login = async (values: LoginParams) => {
-    console.log('Call Login API with:', values);
-    // return request.post('/api/login', values);
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+    // 真实接口调用
+    return http.post('/auth/login', values);
+
+    // 模拟接口 (调试用)
+    // console.log('Call Login API with:', values);
+    // return new Promise((resolve) => setTimeout(resolve, 1000));
 };
 
 export const register = async (values: RegisterParams) => {
-    console.log('Call Register API with:', values);
-    // return request.post('/api/register', values);
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+    return http.post('/auth/register', values);
 };

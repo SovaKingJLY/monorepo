@@ -1,11 +1,12 @@
-import { http } from '@/api/http/api';
+import { http } from "./http";
 
 interface loginRes {
     accessToken: string,
     message?: string,
     role: string,
 }
-export const loginRequest = async (params: { email: string, password: string, remember: boolean }): Promise<loginRes> => {
+export const loginRequest = async (params: { email: string | null, password: string | null, remember: boolean | null }): Promise<loginRes> => {
+    console.log(params);
     return await http.post('/admin/login/', params);
 }
 
