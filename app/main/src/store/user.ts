@@ -23,9 +23,7 @@ export const useUserStore = create<UserState>((set) => ({
         try {
             await loginCheck();
             set({ isLogin: true });
-            console.log("isLogin:True");
         } catch (error) {
-            console.log("token失效");
             set({ isLogin: false });
         }
     },

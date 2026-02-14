@@ -6,11 +6,21 @@ import getThemeConfig from '@repo/antd_config//themeConfig'
 import { GlobalStyle } from '@repo/antd_config/GlobalStyle'
 import { useEffect, useState } from 'react'
 import useDarkStore from './store/darkMode'
+import useUserStore from './store/user'
 
 function App() {
   const DarkMode = useDarkStore();
   let { isDark } = DarkMode;
   let [themeConfig, setThemeConfig] = useState({});
+
+  const { checkLogin } = useUserStore();
+
+  useEffect(() => {
+    const init = async () => {
+      await checkLogin();
+    }
+    init();
+  }, []);
 
   useEffect(() => {
     setThemeConfig(getThemeConfig({ isDark }));
