@@ -28,6 +28,7 @@ function App() {
     const init = async () => {
       try {
         await loginCheck();
+        console.log("这里");
         const res = await getInfo();
         console.log(res, "这里");
         UserStore.setIsLogin(true);

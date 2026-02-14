@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router'; // 注意：react-router-dom v6+ 这里的包名可能是 react-router-dom
+import { useUserStore } from './store/user';
 
 const App = () => {
     const navigate = useNavigate();
+    const { isLogin, logout, checkLogin } = useUserStore();
+
+    useEffect(() => {
+        const init = async () => {
+            await checkLogin();
+        }
+        init();
+    }, []);
+
+    const handleAuthClick = () => {
+        if (isLogin) {
+            logout();
+        } else {
+            navigate('/login');
+        }
+    };
 
     return (
         <div style={styles.container}>
@@ -23,8 +40,13 @@ const App = () => {
                 </nav>
 
                 <div style={{ marginTop: 'auto', padding: '20px' }}>
-                    <Button type="primary" block onClick={() => navigate('/login')}>
-                        登录
+                    <Button
+                        type="primary"
+                        block
+                        onClick={handleAuthClick}
+                        danger={isLogin}
+                    >
+                        {isLogin ? '注销' : '登录'}
                     </Button>
                 </div>
             </aside>

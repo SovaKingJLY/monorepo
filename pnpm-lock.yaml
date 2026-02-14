@@ -135,6 +135,9 @@ importers:
       react-router:
         specifier: ^7.1.5
         version: 7.12.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      zustand:
+        specifier: ^5.0.10
+        version: 5.0.10(@types/react@19.2.9)(immer@11.1.3)(react@19.2.3)
     devDependencies:
       '@repo/tsconfig':
         specifier: workspace:*
@@ -5592,6 +5595,12 @@ snapshots:
   zustand@5.0.10(@types/react@19.2.8)(immer@11.1.3)(react@19.2.3):
     optionalDependencies:
       '@types/react': 19.2.8
+      immer: 11.1.3
+      react: 19.2.3
+
+  zustand@5.0.10(@types/react@19.2.9)(immer@11.1.3)(react@19.2.3):
+    optionalDependencies:
+      '@types/react': 19.2.9
       immer: 11.1.3
       react: 19.2.3
 

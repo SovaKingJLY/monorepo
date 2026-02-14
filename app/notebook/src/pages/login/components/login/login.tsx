@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import useUserStore from "../../../../store/user";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import styles from './login.module.less'
-import { loginRequest } from "@/api/http/admin/adminRequest";
 type FieldType = {
     email: string;
     password: string;
@@ -33,13 +32,7 @@ export default function Login() {
     const onFinish: FormProps<FieldType>['onFinish'] = async (value) => {//values是填入的值
         try {
             message.loading({ content: '正在加载...', key: "login" });
-            const res = await loginRequest({ email: value.email ?? "", password: value.password ?? "", remember: value.remember ?? false });
-            if (form.getFieldValue('remember')) {
-                UserStore.setAccessToken(res.accessToken);
-                UserStore.setRole(res.role);
-            }
-            else
-                UserStore.setAccessToken(res.accessToken);
+            await UserStore.login({ email: value.email ?? "", password: value.password ?? "", remember: value.remember ?? false });
             message.success({ content: '登录成功', key: "login", duration: 2 });
             nav('/');
         } catch (e) {

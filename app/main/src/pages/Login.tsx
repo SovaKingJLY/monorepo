@@ -5,26 +5,29 @@ import { useNavigate, Link } from 'react-router';
 // 如果报错找不到 react-router，请检查是否应该用 react-router-dom，这里沿用 main.tsx 的风格
 import { login, type LoginParams } from '../api/auth';
 import styles from './Login.module.css';
-import { loginRequest } from '@/api/login';
+import { useUserStore } from '../store/user';
 
 const { Title } = Typography;
 
 const Login: React.FC = () => {
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login, loginLoading } = useUserStore();
 
     const onFinish = async (value: LoginParams) => {
-        setLoading(true);
         try {
-            await loginRequest({ email: value.email || '', password: value.password || '', remember: value.remember || false });
-            message.success('登录成功');
-            // 登录成功后跳转到首页或之前访问的页面
-            navigate('/');
+            // 调用 store 的 login (store 内部调用 api)
+            const success = await login({
+                email: value.email || '',
+                password: value.password || '',
+                remember: value.remember || false
+            });
+
+            if (success) {
+                message.success('登录成功');
+                navigate('/');
+            }
         } catch (error) {
             console.error(error);
-            // message.error('登录失败，请重试'); // api interceptor 已经有了错误提示
-        } finally {
-            setLoading(false);
         }
     };
     const validateEmail = (_: any, value: string) => {
@@ -91,9 +94,9 @@ const Login: React.FC = () => {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" className={styles.loginFormButton} block loading={loading}>
+                        <Button type="primary" htmlType="submit" className={styles.loginFormButton} block >
                             登录
-                        </Button>
+                        </Button>ginLo
                         <div className={styles.registerLink}>
                             或者 <Link to="/register">立即注册!</Link>
                         </div>

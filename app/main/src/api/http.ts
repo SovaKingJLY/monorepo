@@ -24,15 +24,14 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {//发送�
 http.interceptors.response.use(//接收时的拦截器
     async (response: AxiosResponse) => {//网络上没错
         // 这里可以直接返回 response.data，视后端接口规范而定
-        return response;
+        if (response.data.code !== 200) {
+            return Promise.reject(response.data)
+        }
+        return response.data;
     },
     (errorInfo: AxiosError<{ message?: string }>) => {
         const errorMsg = errorInfo.response?.data?.message || errorInfo.message || "请求失败";
-        if (errorInfo.response?.status === 401) {
-            if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-                window.location.href = '/login';
-            }
-        }
+        console.error("Request Error:", errorInfo); // Log detailed error
         message.error(errorMsg);
         return Promise.reject(errorInfo);
     }
