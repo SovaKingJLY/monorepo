@@ -32,7 +32,7 @@ registerMicroApps([
     {
         name: 'aiChat',
         entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
-        container: '#subapp-viewport',
+        container: '#subapp-aichat',
         activeRule: '/app/aiChat',
     },
     {

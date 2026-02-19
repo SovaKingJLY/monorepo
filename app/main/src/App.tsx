@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Button } from 'antd';
 import { Link, Outlet, useNavigate } from 'react-router'; // 注意：react-router-dom v6+ 这里的包名可能是 react-router-dom
 import { useUserStore } from './store/user';
+import './App.less'
 
 const App = () => {
     const navigate = useNavigate();
@@ -19,6 +20,69 @@ const App = () => {
             logout();
         } else {
             navigate('/login');
+        }
+    };
+
+    const styles = {
+        container: {
+            display: 'flex',
+            height: '100vh',
+            width: '100vw',
+            overflow: 'hidden'
+        },
+        sidebar: {
+            width: '240px',
+            backgroundColor: '#001529',
+            color: '#fff',
+            display: 'flex',
+            flexDirection: 'column' as 'column',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
+            zIndex: 10
+        },
+        logo: {
+            height: '64px',
+            lineHeight: '64px',
+            paddingLeft: '24px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            backgroundColor: '#002140',
+            color: '#fff'
+        },
+        navList: {
+            listStyle: 'none',
+            padding: 0,
+            margin: 0
+        },
+        navItem: {
+            margin: 0
+        },
+        link: {
+            display: 'block',
+            padding: '12px 24px',
+            color: 'rgba(255,255,255,0.65)',
+            textDecoration: 'none',
+            transition: 'color 0.3s'
+        },
+        linkHover: {
+            color: '#fff',
+            backgroundColor: '#1890ff'
+        },
+        mainContent: {
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column' as 'column',
+            backgroundColor: '#f0f2f5',
+            overflow: 'auto',
+            position: 'relative' as 'relative'
+        },
+        header: {
+            height: '64px',
+            backgroundColor: '#fff',
+            padding: '0 24px',
+            display: 'flex',
+            alignItems: 'center',
+            boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
+            zIndex: 1
         }
     };
 
@@ -57,10 +121,11 @@ const App = () => {
                     <h2>Main Application Base</h2>
                 </header>
 
-                <div style={styles.contentBody}>
+                <div style={{ flex: 1, position: 'relative' }}>
                     {/* ⚠️ 核心：Qiankun 子应用挂载点 */}
                     {/* 子应用的内容会被自动插入到这个 div 中 */}
                     <div id="subapp-viewport"></div>
+                    <div id="subapp-aichat"></div>
 
                     {/* 如果主应用自己也有路由页面，会在这里渲染 */}
                     <Outlet />
@@ -70,63 +135,5 @@ const App = () => {
     );
 };
 
-// 简单的内联样式对象，代替 CSS 文件
-const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        display: 'flex',
-        height: '100vh',
-        fontFamily: 'Arial, sans-serif',
-    },
-    sidebar: {
-        width: '200px',
-        backgroundColor: '#001529', // 深色背景
-        color: '#fff',
-        padding: '20px 0',
-        display: 'flex',
-        flexDirection: 'column',
-    },
-    logo: {
-        fontSize: '18px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: '30px',
-        color: '#fff',
-    },
-    navList: {
-        listStyle: 'none',
-        padding: 0,
-        margin: 0,
-    },
-    navItem: {
-        margin: '10px 0',
-    },
-    link: {
-        display: 'block',
-        color: '#bbb',
-        textDecoration: 'none',
-        padding: '10px 20px',
-        transition: 'color 0.3s',
-    },
-    mainContent: {
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#f0f2f5',
-    },
-    header: {
-        height: '64px',
-        backgroundColor: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 4px rgba(0,21,41,.08)',
-    },
-    contentBody: {
-        flex: 1,
-        padding: '24px',
-        overflow: 'auto', // 防止子应用内容溢出
-        position: 'relative', // 这里的定位有助于子应用布局
-    }
-};
 
 export default App;
