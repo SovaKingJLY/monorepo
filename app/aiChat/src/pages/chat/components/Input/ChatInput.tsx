@@ -3,6 +3,7 @@ import styles from './ChatInput.module.less';
 import { UploadOutlined, SendOutlined, LoadingOutlined } from '@ant-design/icons';
 import useAiChatStore from "@/store/aiChat";
 import classNames from 'classnames';
+import { useEffect } from 'react';
 
 const { TextArea } = Input;
 
@@ -12,9 +13,11 @@ type FieldType = {
 
 interface ChatInputProps {
     className?: string;
+    quoteMessage?: any;
 }
 
 export default function ChatInput(props: ChatInputProps) {
+    const { quoteMessage } = props;
     const { aiChatState, curSession, sendMessage, processList, stopMessage } = useAiChatStore();
 
     // 获取 form 实例
@@ -24,6 +27,14 @@ export default function ChatInput(props: ChatInputProps) {
 
     // 定义限制条件：当 processList 长度小于等于2 时视为受限状态
     const isRestricted = processList.length > 2;
+
+    // 监听 quoteMessage 变化，追加到输入框
+    useEffect(() => {
+        if (quoteMessage) {
+            const currentValue = form.getFieldValue('prompt') || '';
+            form.setFieldsValue({ prompt: currentValue + quoteMessage });
+        }
+    }, [quoteMessage, form]);
 
     const onFinish = async (values: FieldType) => {
         // 防止发送空内容（可选，但推荐）

@@ -18,7 +18,10 @@ const App = () => {
     useEffect(() => {
         const init = async () => {
             await checkLogin();
-            // 移除默认跳转，直接在 activeRule 中处理挂载
+            // 默认跳转到 notebook 主页
+            if (window.location.pathname === '/') {
+                navigate('/app/notebook');
+            }
         };
         init();
 
@@ -26,7 +29,7 @@ const App = () => {
             start();
             startedRef.current = true;
         }
-    }, []);
+    }, [navigate]);
 
     // 监听 showChat 变化，首次打开时加载微应用
     useEffect(() => {

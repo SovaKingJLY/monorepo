@@ -6,6 +6,7 @@ import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helpe
 
 const queryClient = new QueryClient();
 let root: Root | null = null;
+let actions: any = null;
 
 interface QiankunProps {
   container?: HTMLElement;
@@ -41,6 +42,18 @@ function render(props: QiankunProps) {
 renderWithQiankun({
   mount(props) {
     console.log('notebook mount', props);
+    // 保存全局状态 actions
+    actions = props.onGlobalStateChange && props.setGlobalState
+      ? { onGlobalStateChange: props.onGlobalStateChange, setGlobalState: props.setGlobalState }
+      : null;
+
+    // 监听全局状态变化
+    if (actions) {
+      actions.onGlobalStateChange((state: any, prev: any) => {
+        console.log('notebook 接收到全局状态变化:', state, prev);
+      });
+    }
+
     render(props);
   },
   bootstrap() {
@@ -62,3 +75,6 @@ renderWithQiankun({
 if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
   render({});
 }
+
+// 导出 actions 供其他组件使用
+export const getGlobalActions = () => actions;

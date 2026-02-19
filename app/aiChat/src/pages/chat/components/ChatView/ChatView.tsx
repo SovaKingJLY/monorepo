@@ -14,7 +14,11 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkBreaks from 'remark-breaks';
 
-export default function ChatView() {
+interface ChatViewProps {
+    quoteMessage?: any;
+}
+
+export default function ChatView({ quoteMessage }: ChatViewProps) {
     const { id } = useParams();
     const navigate = useNavigate();
     const { curSession, aiChatState, getChatDatas, resetSession } = useAiChatStore();
@@ -145,6 +149,6 @@ export default function ChatView() {
             </div>
             {isHome && <h2 className={styles.welcomeTitle}>今天有什么可以帮到你？</h2>}
         </div>
-        <ChatInput className={isHome ? styles.homeInput : undefined} />
+        <ChatInput className={isHome ? styles.homeInput : undefined} quoteMessage={quoteMessage} />
     </>
 }

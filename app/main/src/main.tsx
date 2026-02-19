@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import { registerMicroApps, start, initGlobalState } from 'qiankun';
+import { registerMicroApps, initGlobalState } from 'qiankun';
 import App from './App';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,8 +10,8 @@ import { loginCheck } from './api/login';
 
 // 初始化 state
 const actions = initGlobalState({
-    user: {}, // 初始用户信息
-    cookie: document.cookie // 将当前所有可读取到的非 HttpOnly Cookie 放入全局状态
+    isDark: false,
+    quoteMessage: '', // 来自 notebook 的引用文本
 });
 
 // 监听 state 变更

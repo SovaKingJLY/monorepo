@@ -77,7 +77,7 @@ const router = createBrowserRouter([
     }
 ], {
     basename: qiankunWindow.__POWERED_BY_QIANKUN__
-        ? (window.location.pathname.startsWith('/app/notebook') ? '/app/notebook' : '/')
+        ? '/app/notebook'
         : '/'
 });
 export default router;

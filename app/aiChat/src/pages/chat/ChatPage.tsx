@@ -7,12 +7,14 @@ import { Button } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, OpenAIOutlined } from '@ant-design/icons';
 import useDarkStore from '@/store/darkMode';
 import { FloatTwoColumn } from '@repo/sovaui';
+import { getGlobalState, getGlobalActions } from '../../main';
 
 export default function ChatPage() {
     const { isDark, setDark } = useDarkStore();
     const [collapsed, setCollapsed] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(window.innerWidth);
+    const [notebookData, setNotebookData] = useState<any>(null);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -42,6 +44,24 @@ export default function ChatPage() {
         }
     }, [containerWidth]);
 
+    // 监听全局状态变化
+    useEffect(() => {
+        const actions = getGlobalActions();
+        if (actions) {
+            const unsubscribe = actions.onGlobalStateChange((state: any) => {
+                if (state.quoteMessage) {
+                    setNotebookData(state.quoteMessage);
+                }
+            });
+            // 初始化时读取一次
+            const currentState = getGlobalState();
+            if (currentState?.quoteMessage) {
+                setNotebookData(currentState.quoteMessage);
+            }
+            return unsubscribe;
+        }
+    }, []);
+
     const toDark = () => {
         setDark(!isDark);
     }
@@ -59,18 +79,16 @@ export default function ChatPage() {
         </div>
     </div>
 
-    const right = <ChatView />
+
 
     const title = <div className={styles.collBtn}>
         <Button shape="circle" icon={<MoonOutlined />} onClick={toDark} />
         <Button shape="circle" onClick={() => { setCollapsed(!collapsed) }} style={{ marginBottom: 16 }}>
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </Button>
-        <div>
-            测试标题
-        </div>
     </div>
 
+    const right = <ChatView quoteMessage={notebookData} />
     return <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
         <FloatTwoColumn
             left={left}
