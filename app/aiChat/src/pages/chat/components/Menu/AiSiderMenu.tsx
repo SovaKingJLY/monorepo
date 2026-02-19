@@ -17,14 +17,22 @@ interface AiSiderMenuProp {
 const transformSessionData = (res: any) => {
     const list = res?.data || [];
     // 强烈建议：这里限制数量，比如只取前 50 条，否则 Antd 渲染压力太大
-    return list
+
+    const sortedList = list
+        .map((i: any) => ({
+            ...i,
+            rawDate: i.updatedAt || "", // 保留原始日期用于准确排序
+        }))
+        .sort((a: any, b: any) => (b.rawDate || "").localeCompare(a.rawDate || ""))
+        .slice(0, 50);
+
+    return sortedList
         .map((i: any) => ({
             sessionId: i.sessionId,
             title: i.title,
-            updatedAt: i.updatedAt?.slice(0, 10) || "未知日期",
-        }))
-        .sort((a: any, b: any) => b.updatedAt.localeCompare(a.updatedAt))
-        .slice(0, 50); // 🚀 性能优化：只渲染最近 50 条，防止 DOM 爆炸
+            // 去掉年份，只保留 MM-DD (假设格式为 YYYY-MM-DD...)
+            updatedAt: i.updatedAt?.slice(5, 10) || "未知日期",
+        }));
 };
 
 export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
@@ -64,7 +72,7 @@ export default function AiSiderMenu({ collapsed }: AiSiderMenuProp) {
             );
             const newItem = {
                 key: item.sessionId,
-                icon: <MessageOutlined />, // 加上图标，收起时才好看
+                // icon: <MessageOutlined />, // 加上图标，收起时才好看
                 label: (
                     item.title.length >= 20 ? (
                         <Tooltip placement="left" title={item.title} zIndex={999}>

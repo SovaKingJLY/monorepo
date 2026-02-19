@@ -29,22 +29,25 @@ loginCheck().then((check) => {
 
 // 注册子应用
 registerMicroApps([
-    {
-        name: 'aiChat',
-        entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
-        container: '#subapp-aichat',
-        activeRule: '/app/aiChat',
-    },
+    // {
+    //     name: 'aiChat',
+    //     entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
+    //     container: '#subapp-aichat',
+    //     activeRule: '/app/aiChat',
+    // },
     {
         name: 'notebook',
         entry: '//localhost:5175',
         container: '#subapp-viewport',
-        activeRule: '/app/notebook',
+        activeRule: (location) => {
+            // 在根路径 '/' 或者 '/app/notebook' 开头的路径下激活
+            return location.pathname === '/' || location.pathname.startsWith('/app/notebook');
+        },
     },
 ]);
 
 // 启动 qiankun
-start();
+// start(); Moved to App.tsx to ensure container exists
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>

@@ -37,7 +37,7 @@ function render(props: QiankunProps) {
     root.render(
       <AntdApp>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <App {...props} />
         </QueryClientProvider>
       </AntdApp>
     );

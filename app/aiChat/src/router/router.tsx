@@ -47,7 +47,7 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
-const mainRouters = [{
+export const mainRouters = [{
     path: '/',
     element: <LoginGuard><Login /></LoginGuard>
 }, {

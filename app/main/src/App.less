@@ -21,3 +21,11 @@ body:has(.aiChatWrapper:hover) {
   overflow: hidden;
   /* 锁死 body */
 }
+
+/* 修复悬浮框中 qiankun 子应用容器高度无法占满的问题 */
+#subapp-viewport,
+div[data-qiankun="aiChat"],
+div[id^="__qiankun_microapp_wrapper_for_"] {
+  height: 100%;
+  width: 100%;
+}

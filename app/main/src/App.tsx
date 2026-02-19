@@ -1,27 +1,56 @@
-import React, { useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Button } from 'antd';
-import { Link, Outlet, useNavigate } from 'react-router'; // 注意：react-router-dom v6+ 这里的包名可能是 react-router-dom
+import { Link, Outlet, useNavigate } from 'react-router';
+import { loadMicroApp, start } from 'qiankun';
 import { useUserStore } from './store/user';
 import './App.less'
 
 const App = () => {
     const navigate = useNavigate();
     const { isLogin, logout, checkLogin } = useUserStore();
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    // 聊天窗口状态
+    const [showChat, setShowChat] = useState(false);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const microAppRef = useRef<any>(null);
+    const startedRef = useRef(false);
 
     useEffect(() => {
         const init = async () => {
             await checkLogin();
-        }
+            // 移除默认跳转，直接在 activeRule 中处理挂载
+        };
         init();
+
+        if (!startedRef.current) {
+            start();
+            startedRef.current = true;
+        }
     }, []);
 
-    const handleAuthClick = () => {
-        if (isLogin) {
-            logout();
-        } else {
-            navigate('/login');
+    // 监听 showChat 变化，首次打开时加载微应用
+    useEffect(() => {
+        if (showChat && !microAppRef.current && chatContainerRef.current) {
+            setIsChatLoading(true);
+            microAppRef.current = loadMicroApp({
+                name: 'aiChat',
+                entry: '//localhost:5174',
+                container: chatContainerRef.current,
+                props: {
+                    appType: 'widget' // 明确标识为 widget 模式
+                }
+            });
+            microAppRef.current.mountPromise.then(() => {
+                // 这里表示子应用已经成功下载资源并渲染到 DOM 中了
+                setIsChatLoading(false);
+            }).catch((err: any) => {
+                // 处理加载失败的情况
+                console.error('微应用加载失败', err);
+                setIsChatLoading(false); // 失败也要关闭 loading
+            });
         }
-    };
+    }, [showChat]);
+
 
     const styles = {
         container: {
@@ -29,43 +58,6 @@ const App = () => {
             height: '100vh',
             width: '100vw',
             overflow: 'hidden'
-        },
-        sidebar: {
-            width: '240px',
-            backgroundColor: '#001529',
-            color: '#fff',
-            display: 'flex',
-            flexDirection: 'column' as 'column',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.15)',
-            zIndex: 10
-        },
-        logo: {
-            height: '64px',
-            lineHeight: '64px',
-            paddingLeft: '24px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            backgroundColor: '#002140',
-            color: '#fff'
-        },
-        navList: {
-            listStyle: 'none',
-            padding: 0,
-            margin: 0
-        },
-        navItem: {
-            margin: 0
-        },
-        link: {
-            display: 'block',
-            padding: '12px 24px',
-            color: 'rgba(255,255,255,0.65)',
-            textDecoration: 'none',
-            transition: 'color 0.3s'
-        },
-        linkHover: {
-            color: '#fff',
-            backgroundColor: '#1890ff'
         },
         mainContent: {
             flex: 1,
@@ -75,63 +67,93 @@ const App = () => {
             overflow: 'auto',
             position: 'relative' as 'relative'
         },
-        header: {
-            height: '64px',
-            backgroundColor: '#fff',
-            padding: '0 24px',
+        floatingBox: {
+            position: 'fixed' as 'fixed',
+            bottom: '40px',
+            right: '40px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '8px',
+            backgroundColor: '#1890ff',
+            color: '#fff',
             display: 'flex',
             alignItems: 'center',
-            boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
-            zIndex: 1
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            cursor: 'pointer',
+            zIndex: 1000,
+            transition: 'transform 0.3s'
+        },
+        chatBox: {
+            position: 'fixed' as 'fixed',
+            bottom: '110px',
+            right: '40px',
+            width: '700px',
+            height: '800px',
+            backgroundColor: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+            zIndex: 999,
+            overflow: 'hidden',
+            display: showChat ? 'block' : 'none',
+            border: '1px solid #e8e8e8'
         }
     };
 
+    const toggleChat = () => {
+        setShowChat((prev) => !prev);
+    };
+
     return (
-        <div style={styles.container}>
-            {/* 左侧侧边栏 */}
-            <aside style={styles.sidebar}>
-                <div style={styles.logo}>微前端主应用</div>
-                <nav>
-                    <ul style={styles.navList}>
-                        <li style={styles.navItem}>
-                            {/* 这里的 /app/aiChat 对应你注册子应用时的 activeRule */}
-                            <Link to="/app/aiChat" style={styles.link}>🤖 AI Chat</Link>
-                        </li>
-                        <li style={styles.navItem}>
-                            <Link to="/app/notebook" style={styles.link}>📓 Notebook</Link>
-                        </li>
-                    </ul>
-                </nav>
+        <main style={styles.mainContent}>
 
-                <div style={{ marginTop: 'auto', padding: '20px' }}>
-                    <Button
-                        type="primary"
-                        block
-                        onClick={handleAuthClick}
-                        danger={isLogin}
-                    >
-                        {isLogin ? '注销' : '登录'}
-                    </Button>
-                </div>
-            </aside>
+            <div style={{ flex: 1, position: 'relative' }}>
+                {/* ⚠️ 核心：Qiankun 子应用挂载点 */}
+                {/* 子应用的内容会被自动插入到这个 div 中 */}
+                <div id="subapp-viewport"></div>
 
-            {/* 右侧主内容区 */}
-            <main style={styles.mainContent}>
-                <header style={styles.header}>
-                    <h2>Main Application Base</h2>
-                </header>
+                {/* 如果主应用自己也有路由页面，会在这里渲染 */}
+                <Outlet />
+            </div>
 
-                <div style={{ flex: 1, position: 'relative' }}>
-                    {/* ⚠️ 核心：Qiankun 子应用挂载点 */}
-                    {/* 子应用的内容会被自动插入到这个 div 中 */}
-                    <div id="subapp-viewport"></div>
-                    <div id="subapp-aichat"></div>
+            {/* 聊天窗口容器 - 使用 loadMicroApp 手动挂载 */}
+            <div style={styles.chatBox} > {/* 这里 ref 仅用于可能的外部定位引用，或者可以去掉 */}
 
-                    {/* 如果主应用自己也有路由页面，会在这里渲染 */}
-                    <Outlet />
-                </div>
-            </main>
-        </div>
+                {/* 区域 A：专门给 Qiankun 用的“无人区”，React 不要在里面渲染任何子元素 */}
+                <div
+                    ref={chatContainerRef}
+                    style={{ width: '100%', height: '100%' }}
+                />
+
+                {/* 区域 B：React 控制的 Loading 遮罩层，覆盖在上面 */}
+                {isChatLoading && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)', //以此遮挡加载过程中的闪烁
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10
+                    }}>
+                        <span>努力加载中...</span>
+                    </div>
+                )}
+            </div>
+
+
+            {/* 悬浮框 */}
+            <div
+                style={styles.floatingBox}
+                onClick={toggleChat}
+                title={showChat ? "关闭聊天" : "打开聊天"}
+            >
+                <span style={{ fontSize: '24px' }}>{showChat ? '-' : '+'}</span>
+            </div>
+        </main>
     );
 };
 

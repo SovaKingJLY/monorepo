@@ -39,7 +39,7 @@ const FloatTwoColumn = ({ contentWidth = 800, ...props }: floatTwoColumnProp) =>
                 className={styles.sider}
                 style={{
                     overflow: 'hidden',
-                    height: '100vh',
+                    // height: '100vh',
                     position: 'sticky',
                     top: 0,
                     zIndex: 10

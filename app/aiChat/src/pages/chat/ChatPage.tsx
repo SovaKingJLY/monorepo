@@ -2,7 +2,7 @@ import Sider from 'antd/es/layout/Sider';
 import styles from './ChatPage.module.less';
 import AiSiderMenu from './components/Menu/AiSiderMenu';
 import ChatView from './components/ChatView/ChatView';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, OpenAIOutlined } from '@ant-design/icons';
 import useDarkStore from '@/store/darkMode';
@@ -11,6 +11,36 @@ import { FloatTwoColumn } from '@repo/sovaui';
 export default function ChatPage() {
     const { isDark, setDark } = useDarkStore();
     const [collapsed, setCollapsed] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(window.innerWidth);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                setContainerWidth(entry.contentRect.width);
+            }
+        });
+
+        resizeObserver.observe(containerRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, []);
+
+    // 父容器宽度的 30%
+    const siderWidth = containerWidth * 0.2;
+
+    // 自适应内容宽度，防止在小窗口（如悬浮窗）中溢出
+    const contentWidth = containerWidth > 800 ? 800 : containerWidth;
+
+    useEffect(() => {
+        if (containerWidth < 768) {
+            setCollapsed(true);
+        }
+    }, [containerWidth]);
 
     const toDark = () => {
         setDark(!isDark);
@@ -28,8 +58,9 @@ export default function ChatPage() {
             <AiSiderMenu collapsed={collapsed} />
         </div>
     </div>
-    const right =
-        <ChatView />
+
+    const right = <ChatView />
+
     const title = <div className={styles.collBtn}>
         <Button shape="circle" icon={<MoonOutlined />} onClick={toDark} />
         <Button shape="circle" onClick={() => { setCollapsed(!collapsed) }} style={{ marginBottom: 16 }}>
@@ -39,9 +70,18 @@ export default function ChatPage() {
             测试标题
         </div>
     </div>
-    return <>
-        <FloatTwoColumn left={left} right={right} isCollapsed={collapsed} leftWidth={300} title={title}>
+
+    return <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
+        <FloatTwoColumn
+            left={left}
+            right={right}
+            isCollapsed={collapsed}
+            leftWidth={siderWidth}
+            title={title}
+            contentWidth={contentWidth} // 传入计算后的宽度
+        >
         </FloatTwoColumn>
+
         {/* <div className={styles.twoColumn}>
             <Sider
                 style={{ height: "100%" }}
@@ -75,5 +115,5 @@ export default function ChatPage() {
                 <ChatView />
             </div>
         </div> */}
-    </>
+    </div>
 }
