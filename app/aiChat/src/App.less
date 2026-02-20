@@ -14,7 +14,18 @@ body,
     width: 100%;
     height: 100%;
     margin: 0;
+
 }
+
+// html {
+//     scrollbar-gutter: stable;
+//     height: 100%;
+// }
+
+// html::-webkit-scrollbar {
+//     width: 0px;
+//     height: 0;
+// }
 
 // /* 1. 关键点：隐藏上下三角箭头 */
 // ::-webkit-scrollbar-button {
@@ -22,29 +33,29 @@ body,
 // }
 
 // /* 2. 设置滚动条的宽度/高度 */
-::-webkit-scrollbar {
-    width: 6px;
-    /* 纵向滚动条宽度 */
-    height: 6px;
-    /* 横向滚动条高度 */
-}
+// ::-webkit-scrollbar {
+//     width: 6px;
+//     /* 纵向滚动条宽度 */
+//     height: 6px;
+//     /* 横向滚动条高度 */
+// }
 
-// /* 3. 轨道背景（设为透明，看起来像悬浮在内容上） */
-::-webkit-scrollbar-track {
-    background-color: var(--color-bg-base);
+// // /* 3. 轨道背景（设为透明，看起来像悬浮在内容上） */
+// ::-webkit-scrollbar-track {
+//     background-color: var(--color-bg-base);
 
-}
+// }
 
-// /* 4. 滑块样式（圆角 + 柔和的灰色） */
-::-webkit-scrollbar-thumb {
-    /* 关键技巧：用透明边框挤压内容区域 */
-    border: 3px solid transparent;
-    /* 让背景色只在内容区显示，不延伸到边框 */
-    background-color: var(--color-overlay-color);
-    /* 平时比较淡 */
-    border-radius: 4px;
-    /* 完全圆角 */
-}
+// // /* 4. 滑块样式（圆角 + 柔和的灰色） */
+// ::-webkit-scrollbar-thumb {
+//     /* 关键技巧：用透明边框挤压内容区域 */
+//     border: 3px solid transparent;
+//     /* 让背景色只在内容区显示，不延伸到边框 */
+//     background-color: var(--color-overlay-color);
+//     /* 平时比较淡 */
+//     border-radius: 4px;
+//     /* 完全圆角 */
+// }
 
 // /* 5. 鼠标悬停在滑块上时加深颜色 */
 // ::-webkit-scrollbar-thumb:hover {

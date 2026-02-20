@@ -13,7 +13,7 @@ import { getInfo } from './api/http/text/textRequest'
 import { loginCheck } from './api/http/admin/adminRequest'
 
 function App() {
-  const AiChat = lazy(() => import('./components/AIChat/AiChat'));
+  // const AiChat = lazy(() => import('./components/AIChat/AiChat'));
   const DarkMode = useDarkStore();
   const UserStore = useUserStore();
   let { isDark } = DarkMode;
@@ -28,13 +28,10 @@ function App() {
     const init = async () => {
       try {
         await loginCheck();
-        console.log("这里");
-        const res = await getInfo();
-        console.log(res, "这里");
+        await getInfo();
         UserStore.setIsLogin(true);
         UserStore.setRole('管理员');//目前就管理员
         UserStore.setIsLoading(false);
-        console.log("登录成功这里");
       } catch {
         UserStore.setIsLoading(false);
         UserStore.logout();
