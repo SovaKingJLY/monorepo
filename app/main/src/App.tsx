@@ -94,7 +94,8 @@ const App = () => {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             cursor: 'pointer',
             zIndex: 1000,
-            transition: 'transform 0.3s'
+            transition: 'transform 0.3s',
+            userSelect: 'none'
         },
         chatBox: {
             position: 'fixed' as 'fixed',
@@ -108,7 +109,8 @@ const App = () => {
             zIndex: 999,
             overflow: 'hidden',
             display: showChat ? 'block' : 'none',
-            border: '1px solid #e8e8e8'
+            border: '1px solid #e8e8e8',
+
         }
     };
 

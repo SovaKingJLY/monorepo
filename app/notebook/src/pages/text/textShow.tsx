@@ -217,6 +217,7 @@ interface SelectionPop {
 }
 
 const NOTEBOOK_QUOTE_EVENT = 'notebook:quote-text';
+const NOTEBOOK_QUOTE_ACK_EVENT = 'notebook:quote-text:ack';
 
 export default function TextShow() {
     const nav = useNavigate();
@@ -345,17 +346,31 @@ export default function TextShow() {
         const quoteText = selectionPop.text?.trim();
         if (!quoteText) return;
 
+        const requestId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
         const payload = {
             text: quoteText,
             source: 'notebook',
             ts: Date.now(),
+            requestId,
         };
 
-        // 双发一份，兼容不同沙箱事件补丁策略
-        window.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_EVENT, { detail: payload }));
-        // document.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_EVENT, { detail: payload }));
+        const ackHandler = (event: Event) => {
+            const customEvent = event as CustomEvent<{ requestId?: string }>;
+            if (customEvent?.detail?.requestId !== requestId) return;
+            window.removeEventListener(NOTEBOOK_QUOTE_ACK_EVENT, ackHandler as EventListener);
+            clearTimeout(timeoutId);
+            app.message.success('已引用到 AI 输入框');
+        };
 
-        // app.message.success('已引用到 AI 输入框');
+        window.addEventListener(NOTEBOOK_QUOTE_ACK_EVENT, ackHandler as EventListener);
+        const timeoutId = window.setTimeout(() => {
+            window.removeEventListener(NOTEBOOK_QUOTE_ACK_EVENT, ackHandler as EventListener);
+            app.message.warning('AI 聊天窗口未响应');
+        }, 1000);
+
+        window.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_EVENT, { detail: payload }));
+
         setSelectionPop(prev => ({ ...prev, show: false }));
         window.getSelection()?.removeAllRanges();
 

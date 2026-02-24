@@ -16,6 +16,7 @@ interface ChatInputProps {
 }
 
 const NOTEBOOK_QUOTE_EVENT = 'notebook:quote-text';
+const NOTEBOOK_QUOTE_ACK_EVENT = 'notebook:quote-text:ack';
 
 export default function ChatInput(props: ChatInputProps) {
     const { className } = props;
@@ -39,19 +40,20 @@ export default function ChatInput(props: ChatInputProps) {
         };
 
         const handler = (event: Event) => {
-            const customEvent = event as CustomEvent<{ text?: string }>;
+            const customEvent = event as CustomEvent<{ text?: string; requestId?: string }>;
             const quoteText = customEvent?.detail?.text;
             if (quoteText) {
                 appendQuote(quoteText);
+                window.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_ACK_EVENT, {
+                    detail: { requestId: customEvent?.detail?.requestId }
+                }));
             }
         };
 
         window.addEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
-        document.addEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
 
         return () => {
             window.removeEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
-            document.removeEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
         };
     }, [form]);
 
