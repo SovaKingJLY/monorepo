@@ -7,7 +7,7 @@ import useDarkStore from './store/darkMode';
 
 const queryClient = new QueryClient();
 let root: Root | null = null;
-let actions: any = null;
+let unsubscribeMainDarkStore: (() => void) | undefined;
 
 interface QiankunProps {
   container?: HTMLElement;
@@ -43,21 +43,27 @@ function render(props: QiankunProps) {
 renderWithQiankun({
   mount(props) {
     console.log('notebook mount', props);
-    // 保存全局状态 actions
-    actions = props.onGlobalStateChange && props.setGlobalState
-      ? { onGlobalStateChange: props.onGlobalStateChange, setGlobalState: props.setGlobalState }
-      : null;
+    const darkModeStore = props?.darkModeStore;
 
-    useDarkStore.getState().setGlobalDarkUpdater(actions?.setGlobalState);
-
-    // 监听全局状态变化
-    if (actions) {
-      actions.onGlobalStateChange((state: any, prev: any) => {
-        console.log('notebook 接收到全局状态变化:', state, prev);
-        if (typeof state?.isDark === 'boolean') {
-          useDarkStore.getState().setDark(state.isDark);
+    if (darkModeStore?.getState) {
+      const mainDarkState = darkModeStore.getState();
+      if (typeof mainDarkState?.isDark === 'boolean') {
+        useDarkStore.getState().setDark(mainDarkState.isDark);
+      }
+      if (darkModeStore?.subscribe) {
+        unsubscribeMainDarkStore = darkModeStore.subscribe((state: any) => {
+          if (typeof state?.isDark === 'boolean') {
+            useDarkStore.getState().setDark(state.isDark);
+          }
+        });
+      }
+      useDarkStore.getState().setGlobalDarkUpdater((payload) => {
+        if (typeof payload?.isDark === 'boolean') {
+          darkModeStore.getState()?.setDarkWithGlobal?.(payload.isDark);
         }
-      }, true);
+      });
+    } else {
+      useDarkStore.getState().setGlobalDarkUpdater(undefined);
     }
 
     render(props);
@@ -67,6 +73,8 @@ renderWithQiankun({
   },
   unmount(_props: any) {
     console.log('notebook unmount');
+    unsubscribeMainDarkStore?.();
+    unsubscribeMainDarkStore = undefined;
     useDarkStore.getState().setGlobalDarkUpdater(undefined);
     if (root) {
       root.unmount();
@@ -82,6 +90,3 @@ renderWithQiankun({
 if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
   render({});
 }
-
-// 导出 actions 供其他组件使用
-export const getGlobalActions = () => actions;

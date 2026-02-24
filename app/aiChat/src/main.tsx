@@ -10,8 +10,7 @@ const queryClient = new QueryClient();
 
 // 定义 root 变量，用于在 unmount 时销毁，防止内存泄漏
 let root: Root | null = null;
-let actions: any = null;
-let globalState: any = {}; // 存储全局状态
+let unsubscribeMainDarkStore: (() => void) | undefined;
 
 // 定义 Props 类型
 interface QiankunProps {
@@ -54,25 +53,27 @@ function render(props: QiankunProps) {
 renderWithQiankun({
   mount(props) {
     console.log('aiChat mount', props);
-    // 保存全局状态 actions
-    actions = props.onGlobalStateChange && props.setGlobalState
-      ? { onGlobalStateChange: props.onGlobalStateChange, setGlobalState: props.setGlobalState }
-      : null;
+    const darkModeStore = props?.darkModeStore;
 
-    useDarkStore.getState().setGlobalDarkUpdater(actions?.setGlobalState);
-
-    // 监听全局状态变化
-    if (actions) {
-      actions.onGlobalStateChange((state: any, prev: any) => {
-        console.log('aiChat 接收到全局状态变化:', state, prev);
-        console.log('接收到的数据:', state);
-        // 保存到本地状态
-        globalState = state;
-        window.dispatchEvent(new CustomEvent('aichat-global-state-change', { detail: state }));
-        if (typeof state?.isDark === 'boolean') {
-          useDarkStore.getState().setDark(state.isDark);
+    if (darkModeStore?.getState) {
+      const mainDarkState = darkModeStore.getState();
+      if (typeof mainDarkState?.isDark === 'boolean') {
+        useDarkStore.getState().setDark(mainDarkState.isDark);
+      }
+      if (darkModeStore?.subscribe) {
+        unsubscribeMainDarkStore = darkModeStore.subscribe((state: any) => {
+          if (typeof state?.isDark === 'boolean') {
+            useDarkStore.getState().setDark(state.isDark);
+          }
+        });
+      }
+      useDarkStore.getState().setGlobalDarkUpdater((payload) => {
+        if (typeof payload?.isDark === 'boolean') {
+          darkModeStore.getState()?.setDarkWithGlobal?.(payload.isDark);
         }
-      }, true);
+      });
+    } else {
+      useDarkStore.getState().setGlobalDarkUpdater(undefined);
     }
 
     render(props);
@@ -82,6 +83,8 @@ renderWithQiankun({
   },
   unmount(_props: any) {
     console.log('aiChat unmount');
+    unsubscribeMainDarkStore?.();
+    unsubscribeMainDarkStore = undefined;
     useDarkStore.getState().setGlobalDarkUpdater(undefined);
     if (root) {
       root.unmount();
@@ -100,10 +103,6 @@ renderWithQiankun({
 if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
   render({});
 }
-
-// 导出获取全局状态的函数
-export const getGlobalState = () => globalState;
-export const getGlobalActions = () => actions;
 
 /**
  * 导出生命周期钩子

@@ -7,13 +7,13 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import 'antd/dist/reset.css'; // Ant Design 5 样式重置 (v5 默认不需要 import css 但为了保险)
 import { loginCheck } from './api/login';
-import { globalStateActions } from './qiankunState';
 
-// 监听 state 变更
-globalStateActions.onGlobalStateChange((state, prev) => {
-    // state: 变更后的状态; prev 变更前的状态
-    console.log(state, prev);
-});
+import useDarkModeStore from './store/darkMode';
+import { darkModeStoreBridge } from './store/darkMode';
+
+// 触发持久化状态初始化
+useDarkModeStore.getState();
+
 
 // 预检请求（非 React 组件中直接调用即可，不需要 useEffect）
 loginCheck().then((check) => {
@@ -23,21 +23,21 @@ loginCheck().then((check) => {
 });
 
 // 注册子应用
+// {
+//     name: 'aiChat',
+//     entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
+//     container: '#subapp-aichat',
+//     activeRule: '/app/aiChat',
+// },
+
 registerMicroApps([
-    // {
-    //     name: 'aiChat',
-    //     entry: '//localhost:5174', // 假设的端口，后续需在子应用vite.config.ts配置
-    //     container: '#subapp-aichat',
-    //     activeRule: '/app/aiChat',
-    // },
     {
         name: 'notebook',
         entry: '//localhost:5175',
         container: '#subapp-viewport',
         props: {
-            onGlobalStateChange: globalStateActions.onGlobalStateChange,
-            setGlobalState: globalStateActions.setGlobalState,
-            offGlobalStateChange: globalStateActions.offGlobalStateChange,
+            baseURL: "ttttt",
+            darkModeStore: darkModeStoreBridge,
         },
         activeRule: (location) => {
             // 在根路径 '/' 或者 '/app/notebook' 开头的路径下激活

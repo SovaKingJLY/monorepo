@@ -6,14 +6,12 @@ import { Button } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, OpenAIOutlined } from '@ant-design/icons';
 import useDarkStore from '@/store/darkMode';
 import { FloatTwoColumn } from '@repo/sovaui';
-import { getGlobalState } from '../../main';
 
 export default function ChatPage() {
     const { updateDarkWithGlobal } = useDarkStore();
     const [collapsed, setCollapsed] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(window.innerWidth);
-    const [notebookData, setNotebookData] = useState<any>(null);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -43,27 +41,6 @@ export default function ChatPage() {
         }
     }, [containerWidth]);
 
-    // 监听全局状态变化
-    useEffect(() => {
-        const currentState = getGlobalState();
-        if (currentState?.quoteMessage) {
-            setNotebookData(currentState.quoteMessage);
-        }
-
-        const handler = (event: Event) => {
-            const customEvent = event as CustomEvent<any>;
-            const state = customEvent?.detail;
-            if (state?.quoteMessage) {
-                setNotebookData(state.quoteMessage);
-            }
-        };
-
-        window.addEventListener('aichat-global-state-change', handler as EventListener);
-        return () => {
-            window.removeEventListener('aichat-global-state-change', handler as EventListener);
-        };
-    }, []);
-
     const toDark = () => {
         updateDarkWithGlobal();
     }
@@ -90,7 +67,7 @@ export default function ChatPage() {
         </Button>
     </div>
 
-    const right = <ChatView quoteMessage={notebookData} />
+    const right = <ChatView />
     return <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
         <FloatTwoColumn
             left={left}

@@ -196,11 +196,10 @@
 import { useNavigate, useParams } from 'react-router';
 import styles from './textShow.module.less';
 import { useEffect, useState, useRef } from 'react'; // 引入 useRef
-import { App, Button, Image, Skeleton, message } from 'antd'; // 引入 message 用于提示
+import { App, Button, Skeleton } from 'antd'; // 引入 message 用于提示
 import useTextFontSize from '../../store/state/textFontSize';
 import useUserStore from '../../store/user';
 import { getText } from '@/api/http/text/textRequest';
-import { getGlobalActions } from '../../main';
 
 // ... 你的 interface 定义 ...
 interface Text {
@@ -216,6 +215,8 @@ interface SelectionPop {
     y: number;
     text: string;
 }
+
+const NOTEBOOK_QUOTE_EVENT = 'notebook:quote-text';
 
 export default function TextShow() {
     const nav = useNavigate();
@@ -264,7 +265,7 @@ export default function TextShow() {
             // ... 你的原有解析逻辑 ...
             // 假设这里最终 setParsedContent(result); setIsLoading(false);
             try {
-                const [{ default: parse, domToReact }, { Prism: SyntaxHighlighter }, { vscDarkPlus }] = await Promise.all([
+                const [{ default: parse }] = await Promise.all([
                     import('html-react-parser'),
                     import('react-syntax-highlighter'),
                     import('react-syntax-highlighter/dist/esm/styles/prism')
@@ -340,31 +341,24 @@ export default function TextShow() {
     }, []);
 
     // --- 按钮点击处理示例 ---
-    const handleQuote = (e: React.MouseEvent) => {
-        e.stopPropagation(); // 防止触发 document 的 mousedown 导致菜单消失
+    const handleQuote = () => {
+        const quoteText = selectionPop.text?.trim();
+        if (!quoteText) return;
 
-        if (selectionPop.text) {
-            // ---------------------------------------------------------
-            // 这里写你的“引用”业务逻辑
-            // ---------------------------------------------------------
-            console.log('用户引用的文本:', selectionPop.text);
+        const payload = {
+            text: quoteText,
+            source: 'notebook',
+            ts: Date.now(),
+        };
 
-            const actions = getGlobalActions();
-            if (actions && actions.setGlobalState) {
-                // 发送引用信息到 GlobalState
-                actions.setGlobalState({
-                    quoteMessage: selectionPop.text,
-                });
-                // message.success('已引用选中文本并发送到 GlobalState');
-            } else {
-                console.warn('未找到 GlobalState Actions，无法发送引用信息');
-                // message.success('已引用选中文本 (本地)');
-            }
+        // 双发一份，兼容不同沙箱事件补丁策略
+        window.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_EVENT, { detail: payload }));
+        // document.dispatchEvent(new CustomEvent(NOTEBOOK_QUOTE_EVENT, { detail: payload }));
 
-            // 处理完后隐藏菜单并取消高亮
-            setSelectionPop(prev => ({ ...prev, show: false }));
-            window.getSelection()?.removeAllRanges();
-        }
+        // app.message.success('已引用到 AI 输入框');
+        setSelectionPop(prev => ({ ...prev, show: false }));
+        window.getSelection()?.removeAllRanges();
+
     };
 
 

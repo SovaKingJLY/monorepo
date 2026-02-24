@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { loadMicroApp, start } from 'qiankun';
 import { useUserStore } from './store/user';
-import { globalStateActions } from './qiankunState';
+import { darkModeStoreBridge } from './store/darkMode';
 import './App.less'
 
 const App = () => {
@@ -45,9 +45,7 @@ const App = () => {
                 container: chatContainerRef.current,
                 props: {
                     appType: 'widget', // 明确标识为 widget 模式
-                    onGlobalStateChange: globalStateActions.onGlobalStateChange,
-                    setGlobalState: globalStateActions.setGlobalState,
-                    offGlobalStateChange: globalStateActions.offGlobalStateChange,
+                    darkModeStore: darkModeStoreBridge,
                 }
             }, {
                 sandbox: {

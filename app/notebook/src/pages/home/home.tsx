@@ -4,8 +4,7 @@ import { InfoContext } from '../../layout/mainLayout/mainLayout';
 import TextCard from '../../components/textCard/textCard';
 import { textKeyList } from '../../utils/textKeyList';
 import { useLocation } from 'react-router';
-import { Skeleton, Button } from 'antd';
-import { getGlobalActions } from '../../main';
+import { Skeleton } from 'antd';
 
 export default function Home() {
     const context = useContext(InfoContext);
@@ -15,20 +14,6 @@ export default function Home() {
         if (location.pathname == '/')
             document.title = "JLYBLOG";
     }, [location])
-
-    // 向 aiChat 发送示例数据
-    const sendDataToAiChat = () => {
-        const actions = getGlobalActions();
-        if (actions && actions.setGlobalState) {
-            actions.setGlobalState({
-                quoteMessage: '这是来自 notebook 的引用文本内容'
-            });
-            console.log('已发送数据到 aiChat');
-        } else {
-            console.warn('未在 qiankun 环境中运行，无法发送数据');
-        }
-    };
-
     return <>
         <div className={styles.wrapper}>
             {/* <div style={{ marginBottom: '20px' }}>

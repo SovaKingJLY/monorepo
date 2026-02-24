@@ -13,11 +13,12 @@ type FieldType = {
 
 interface ChatInputProps {
     className?: string;
-    quoteMessage?: any;
 }
 
+const NOTEBOOK_QUOTE_EVENT = 'notebook:quote-text';
+
 export default function ChatInput(props: ChatInputProps) {
-    const { quoteMessage } = props;
+    const { className } = props;
     const { aiChatState, curSession, sendMessage, processList, stopMessage } = useAiChatStore();
 
     // 获取 form 实例
@@ -28,13 +29,31 @@ export default function ChatInput(props: ChatInputProps) {
     // 定义限制条件：当 processList 长度小于等于2 时视为受限状态
     const isRestricted = processList.length > 2;
 
-    // 监听 quoteMessage 变化，追加到输入框
     useEffect(() => {
-        if (quoteMessage) {
+        const appendQuote = (text: string) => {
+            const clean = text?.trim();
+            if (!clean) return;
             const currentValue = form.getFieldValue('prompt') || '';
-            form.setFieldsValue({ prompt: currentValue + quoteMessage });
-        }
-    }, [quoteMessage, form]);
+            const prefix = currentValue && !currentValue.endsWith('\n') ? '\n' : '';
+            form.setFieldsValue({ prompt: `${currentValue}${prefix}${clean}` });
+        };
+
+        const handler = (event: Event) => {
+            const customEvent = event as CustomEvent<{ text?: string }>;
+            const quoteText = customEvent?.detail?.text;
+            if (quoteText) {
+                appendQuote(quoteText);
+            }
+        };
+
+        window.addEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
+        document.addEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
+
+        return () => {
+            window.removeEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
+            document.removeEventListener(NOTEBOOK_QUOTE_EVENT, handler as EventListener);
+        };
+    }, [form]);
 
     const onFinish = async (values: FieldType) => {
         // 防止发送空内容（可选，但推荐）
@@ -58,7 +77,7 @@ export default function ChatInput(props: ChatInputProps) {
     // };
 
     return (
-        <div className={styles.input}>
+        <div className={classNames(styles.input, className)}>
             <Form
                 form={form}
                 name="basic"
