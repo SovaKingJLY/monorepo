@@ -7,7 +7,7 @@ import './App.less'
 
 const App = () => {
     const navigate = useNavigate();
-    const { isLogin, logout, checkLogin } = useUserStore();
+    const { checkLogin } = useUserStore();
     const [isChatLoading, setIsChatLoading] = useState(false);
     // 聊天窗口状态
     const [showChat, setShowChat] = useState(false);
@@ -26,7 +26,11 @@ const App = () => {
         init();
 
         if (!startedRef.current) {
-            start();
+            start({
+                sandbox: {
+                    // strictStyleIsolation: true,
+                }
+            });
             startedRef.current = true;
         }
     }, [navigate]);
@@ -41,6 +45,10 @@ const App = () => {
                 container: chatContainerRef.current,
                 props: {
                     appType: 'widget' // 明确标识为 widget 模式
+                }
+            }, {
+                sandbox: {
+                    // strictStyleIsolation: true
                 }
             });
             microAppRef.current.mountPromise.then(() => {
@@ -107,57 +115,52 @@ const App = () => {
         setShowChat((prev) => !prev);
     };
 
-    return (
-        <main style={styles.mainContent}>
-
-            <div style={{ flex: 1, position: 'relative' }}>
-                {/* ⚠️ 核心：Qiankun 子应用挂载点 */}
-                {/* 子应用的内容会被自动插入到这个 div 中 */}
-                <div id="subapp-viewport"></div>
-
-                {/* 如果主应用自己也有路由页面，会在这里渲染 */}
-                <Outlet />
-            </div>
-
-            {/* 聊天窗口容器 - 使用 loadMicroApp 手动挂载 */}
-            <div style={styles.chatBox} > {/* 这里 ref 仅用于可能的外部定位引用，或者可以去掉 */}
-
-                {/* 区域 A：专门给 Qiankun 用的“无人区”，React 不要在里面渲染任何子元素 */}
-                <div
-                    ref={chatContainerRef}
-                    style={{ width: '100%', height: '100%' }}
-                />
-
-                {/* 区域 B：React 控制的 Loading 遮罩层，覆盖在上面 */}
-                {isChatLoading && (
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)', //以此遮挡加载过程中的闪烁
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 10
-                    }}>
-                        <span>努力加载中...</span>
-                    </div>
-                )}
-            </div>
+    return <>
+        <div style={{ flex: 1, position: 'relative' }}>
 
 
-            {/* 悬浮框 */}
+            <div id="subapp-viewport"></div>
+            <Outlet />
+        </div>
+
+
+        <div style={styles.chatBox} > {/* 这里 ref 仅用于可能的外部定位引用，或者可以去掉 */}
+
+            {/* 区域 A：专门给 Qiankun 用的“无人区”，React 不要在里面渲染任何子元素 */}
             <div
-                style={styles.floatingBox}
-                onClick={toggleChat}
-                title={showChat ? "关闭聊天" : "打开聊天"}
-            >
-                <span style={{ fontSize: '24px' }}>{showChat ? '-' : '+'}</span>
-            </div>
-        </main>
-    );
+                ref={chatContainerRef}
+                style={{ width: '100%', height: '100%' }}
+            />
+
+            {/* 区域 B：React 控制的 Loading 遮罩层，覆盖在上面 */}
+            {isChatLoading && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)', //以此遮挡加载过程中的闪烁
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 10
+                }}>
+                    <span>努力加载中...</span>
+                </div>
+            )}
+        </div>
+
+
+        {/* 悬浮框 */}
+        <div
+            style={styles.floatingBox}
+            onClick={toggleChat}
+            title={showChat ? "关闭聊天" : "打开聊天"}
+        >
+            <span style={{ fontSize: '24px' }}>{showChat ? '-' : '+'}</span>
+        </div>
+    </>
 };
 
 

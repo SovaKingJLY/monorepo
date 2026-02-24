@@ -200,6 +200,7 @@ import { App, Button, Image, Skeleton, message } from 'antd'; // 引入 message 
 import useTextFontSize from '../../store/state/textFontSize';
 import useUserStore from '../../store/user';
 import { getText } from '@/api/http/text/textRequest';
+import { getGlobalActions } from '../../main';
 
 // ... 你的 interface 定义 ...
 interface Text {
@@ -348,11 +349,17 @@ export default function TextShow() {
             // ---------------------------------------------------------
             console.log('用户引用的文本:', selectionPop.text);
 
-            // 示例场景 1：如果是为了评论引用，可以将文本格式化后存入 Store 或 State
-            // setCommentContent((prev) => `${prev}\n> ${selectionPop.text}\n`);
-
-            // 示例场景 2：这里仅做提示
-            message.success('已引用选中文本');
+            const actions = getGlobalActions();
+            if (actions && actions.setGlobalState) {
+                // 发送引用信息到 GlobalState
+                actions.setGlobalState({
+                    quoteMessage: selectionPop.text,
+                });
+                // message.success('已引用选中文本并发送到 GlobalState');
+            } else {
+                console.warn('未找到 GlobalState Actions，无法发送引用信息');
+                // message.success('已引用选中文本 (本地)');
+            }
 
             // 处理完后隐藏菜单并取消高亮
             setSelectionPop(prev => ({ ...prev, show: false }));

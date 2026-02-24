@@ -31,11 +31,11 @@ export default function Home() {
 
     return <>
         <div className={styles.wrapper}>
-            <div style={{ marginBottom: '20px' }}>
+            {/* <div style={{ marginBottom: '20px' }}>
                 <Button type="primary" onClick={sendDataToAiChat}>
                     向 aiChat 发送示例数据
                 </Button>
-            </div>
+            </div> */}
             <div className={styles.singleText}>
                 {
                     keyMap.size == 0 ? <Skeleton paragraph={{ rows: 10 }} />
