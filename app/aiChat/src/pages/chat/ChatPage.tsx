@@ -1,4 +1,3 @@
-import Sider from 'antd/es/layout/Sider';
 import styles from './ChatPage.module.less';
 import AiSiderMenu from './components/Menu/AiSiderMenu';
 import ChatView from './components/ChatView/ChatView';
@@ -7,10 +6,10 @@ import { Button } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, OpenAIOutlined } from '@ant-design/icons';
 import useDarkStore from '@/store/darkMode';
 import { FloatTwoColumn } from '@repo/sovaui';
-import { getGlobalState, getGlobalActions } from '../../main';
+import { getGlobalState } from '../../main';
 
 export default function ChatPage() {
-    const { isDark, setDark } = useDarkStore();
+    const { updateDarkWithGlobal } = useDarkStore();
     const [collapsed, setCollapsed] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(window.innerWidth);
@@ -46,29 +45,27 @@ export default function ChatPage() {
 
     // 监听全局状态变化
     useEffect(() => {
-        const actions = getGlobalActions();
-        if (actions) {
-            const unsubscribe = actions.onGlobalStateChange((state: any) => {
-                if (state.quoteMessage) {
-                    setNotebookData(state.quoteMessage);
-                }
-            });
-            // 初始化时读取一次
-            const currentState = getGlobalState();
-            if (currentState?.quoteMessage) {
-                setNotebookData(currentState.quoteMessage);
-            }
-            return unsubscribe;
+        const currentState = getGlobalState();
+        if (currentState?.quoteMessage) {
+            setNotebookData(currentState.quoteMessage);
         }
+
+        const handler = (event: Event) => {
+            const customEvent = event as CustomEvent<any>;
+            const state = customEvent?.detail;
+            if (state?.quoteMessage) {
+                setNotebookData(state.quoteMessage);
+            }
+        };
+
+        window.addEventListener('aichat-global-state-change', handler as EventListener);
+        return () => {
+            window.removeEventListener('aichat-global-state-change', handler as EventListener);
+        };
     }, []);
 
     const toDark = () => {
-        const nextDark = !isDark;
-        setDark(nextDark);
-        const actions = getGlobalActions();
-        if (actions?.setGlobalState) {
-            actions.setGlobalState({ isDark: nextDark });
-        }
+        updateDarkWithGlobal();
     }
 
 

@@ -1,21 +1,16 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import { registerMicroApps, initGlobalState } from 'qiankun';
+import { registerMicroApps } from 'qiankun';
 import App from './App';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import 'antd/dist/reset.css'; // Ant Design 5 样式重置 (v5 默认不需要 import css 但为了保险)
 import { loginCheck } from './api/login';
-
-// 初始化 state
-const actions = initGlobalState({
-    isDark: false,
-    quoteMessage: '', // 来自 notebook 的引用文本
-});
+import { globalStateActions } from './qiankunState';
 
 // 监听 state 变更
-actions.onGlobalStateChange((state, prev) => {
+globalStateActions.onGlobalStateChange((state, prev) => {
     // state: 变更后的状态; prev 变更前的状态
     console.log(state, prev);
 });
@@ -39,6 +34,11 @@ registerMicroApps([
         name: 'notebook',
         entry: '//localhost:5175',
         container: '#subapp-viewport',
+        props: {
+            onGlobalStateChange: globalStateActions.onGlobalStateChange,
+            setGlobalState: globalStateActions.setGlobalState,
+            offGlobalStateChange: globalStateActions.offGlobalStateChange,
+        },
         activeRule: (location) => {
             // 在根路径 '/' 或者 '/app/notebook' 开头的路径下激活
             return location.pathname === '/' || location.pathname.startsWith('/app/notebook');

@@ -63,12 +63,12 @@ function App() {
       <ConfigProvider theme={themeConfig} prefixCls="app-notebook">
         <GlobalStyle scopeSelector=".app-notebook-root"></GlobalStyle>
         <div className="app-notebook-root">
-        {/* {UserStore.role &&
+          {/* {UserStore.role &&
           <Suspense fallback={<div></div>}>
             <AiChat></AiChat>
           </Suspense>
         } */}
-        <RouterProvider router={router} />
+          <RouterProvider router={router} />
         </div>
       </ConfigProvider>
     </>

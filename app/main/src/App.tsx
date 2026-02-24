@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { Button } from 'antd';
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { loadMicroApp, start } from 'qiankun';
 import { useUserStore } from './store/user';
+import { globalStateActions } from './qiankunState';
 import './App.less'
 
 const App = () => {
@@ -44,7 +44,10 @@ const App = () => {
                 entry: '//localhost:5174',
                 container: chatContainerRef.current,
                 props: {
-                    appType: 'widget' // 明确标识为 widget 模式
+                    appType: 'widget', // 明确标识为 widget 模式
+                    onGlobalStateChange: globalStateActions.onGlobalStateChange,
+                    setGlobalState: globalStateActions.setGlobalState,
+                    offGlobalStateChange: globalStateActions.offGlobalStateChange,
                 }
             }, {
                 sandbox: {

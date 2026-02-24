@@ -59,6 +59,8 @@ renderWithQiankun({
       ? { onGlobalStateChange: props.onGlobalStateChange, setGlobalState: props.setGlobalState }
       : null;
 
+    useDarkStore.getState().setGlobalDarkUpdater(actions?.setGlobalState);
+
     // 监听全局状态变化
     if (actions) {
       actions.onGlobalStateChange((state: any, prev: any) => {
@@ -66,6 +68,7 @@ renderWithQiankun({
         console.log('接收到的数据:', state);
         // 保存到本地状态
         globalState = state;
+        window.dispatchEvent(new CustomEvent('aichat-global-state-change', { detail: state }));
         if (typeof state?.isDark === 'boolean') {
           useDarkStore.getState().setDark(state.isDark);
         }
@@ -79,6 +82,7 @@ renderWithQiankun({
   },
   unmount(_props: any) {
     console.log('aiChat unmount');
+    useDarkStore.getState().setGlobalDarkUpdater(undefined);
     if (root) {
       root.unmount();
       root = null;

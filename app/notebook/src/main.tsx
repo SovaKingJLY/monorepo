@@ -48,6 +48,8 @@ renderWithQiankun({
       ? { onGlobalStateChange: props.onGlobalStateChange, setGlobalState: props.setGlobalState }
       : null;
 
+    useDarkStore.getState().setGlobalDarkUpdater(actions?.setGlobalState);
+
     // 监听全局状态变化
     if (actions) {
       actions.onGlobalStateChange((state: any, prev: any) => {
@@ -65,6 +67,7 @@ renderWithQiankun({
   },
   unmount(_props: any) {
     console.log('notebook unmount');
+    useDarkStore.getState().setGlobalDarkUpdater(undefined);
     if (root) {
       root.unmount();
       root = null;
