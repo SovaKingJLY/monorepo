@@ -3,6 +3,7 @@ import App from './App.tsx';
 import { App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
+import useDarkStore from './store/darkMode';
 
 // 创建 QueryClient 实例
 const queryClient = new QueryClient();
@@ -65,7 +66,10 @@ renderWithQiankun({
         console.log('接收到的数据:', state);
         // 保存到本地状态
         globalState = state;
-      });
+        if (typeof state?.isDark === 'boolean') {
+          useDarkStore.getState().setDark(state.isDark);
+        }
+      }, true);
     }
 
     render(props);
@@ -113,7 +117,7 @@ export async function mount(props: QiankunProps) {
 }
 
 // 3. unmount: 每次切出/卸载调用
-export async function unmount(props: any) {
+export async function unmount(_props: any) {
   console.log('[react18] react app unmount');
   if (root) {
     root.unmount(); // 销毁 React 实例

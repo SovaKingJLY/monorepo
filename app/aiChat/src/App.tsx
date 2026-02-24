@@ -44,9 +44,11 @@ function App(props: any) {
   }, [isDark])
   return (
     <>
-      <ConfigProvider theme={themeConfig} >
-        <GlobalStyle></GlobalStyle>
-        <RouterProvider router={router} />
+      <ConfigProvider theme={themeConfig} prefixCls="app-aichat">
+        <GlobalStyle scopeSelector=".app-aichat-root"></GlobalStyle>
+        <div className="app-aichat-root">
+          <RouterProvider router={router} />
+        </div>
       </ConfigProvider>
     </>
   )

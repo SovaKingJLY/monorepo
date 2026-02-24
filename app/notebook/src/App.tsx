@@ -60,14 +60,16 @@ function App() {
   return (
     <>
       {/* ConfigProvider用于配置antd的react context传递css in js信息，而GlobalStyle用于将css in js的数据转换成全局css变量 */}
-      <ConfigProvider theme={themeConfig}>
-        <GlobalStyle></GlobalStyle>
+      <ConfigProvider theme={themeConfig} prefixCls="app-notebook">
+        <GlobalStyle scopeSelector=".app-notebook-root"></GlobalStyle>
+        <div className="app-notebook-root">
         {/* {UserStore.role &&
           <Suspense fallback={<div></div>}>
             <AiChat></AiChat>
           </Suspense>
         } */}
         <RouterProvider router={router} />
+        </div>
       </ConfigProvider>
     </>
   )

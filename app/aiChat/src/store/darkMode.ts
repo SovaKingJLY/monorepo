@@ -19,7 +19,7 @@ const useDarkStore = create<DarkState>()(
         }),
         {
             // 这是 localStorage 里的 Key，所有状态都会存在这里面
-            name: "isDarkZustand",
+            name: "isDarkZustandAichat",
         }
     )
 );

@@ -9,6 +9,7 @@ import useUserStore from '../../../store/user'
 import { useEffect, useState } from 'react'
 import useTextFontSize from '../../../store/state/textFontSize'
 import { logoutAdmin } from '@/api/http/admin/adminRequest'
+import { getGlobalActions } from '../../../main'
 
 interface formType {
     keyword: string,
@@ -34,7 +35,12 @@ export default function Left(prop: leftProp) {
         textFontSizeStore.setFontSize(String(textFontSize));
     }, [textFontSize])
     const toDark = () => {
-        darkStore.updateDark();
+        const nextDark = !darkStore.isDark;
+        darkStore.setDark(nextDark);
+        const actions = getGlobalActions();
+        if (actions?.setGlobalState) {
+            actions.setGlobalState({ isDark: nextDark });
+        }
     }
     const jump = () => nav('/');
     const validateKeyword = (_: any, keyword: string): Promise<void> => {

@@ -63,7 +63,12 @@ export default function ChatPage() {
     }, []);
 
     const toDark = () => {
-        setDark(!isDark);
+        const nextDark = !isDark;
+        setDark(nextDark);
+        const actions = getGlobalActions();
+        if (actions?.setGlobalState) {
+            actions.setGlobalState({ isDark: nextDark });
+        }
     }
 
 

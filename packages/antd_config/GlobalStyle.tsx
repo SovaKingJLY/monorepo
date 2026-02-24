@@ -1,11 +1,15 @@
 import { theme } from "antd";
 
-export function GlobalStyle() {
+interface GlobalStyleProps {
+  scopeSelector?: string;
+}
+
+export function GlobalStyle({ scopeSelector = ":root" }: GlobalStyleProps) {
   const { token } = theme.useToken();
   //定义全局css变量
   //这里的${token.colorBgContainer}是CSS-in-JS 的写法（直接写在 .tsx 文件里），而不能直接写在 .css 或 .less 文件里。
   const css = `
-    :root {
+    ${scopeSelector} {
       --color-bg-base: ${token.colorBgContainer};/*是这样的注释 这里是容器背景色*/
       --color-bg-layout:${token.colorBgLayout};/* 布局背景色，白色下是略带灰的 */
       --color-text: ${token.colorText};
@@ -18,7 +22,7 @@ export function GlobalStyle() {
       --color-text-quaternary:${token.colorTextQuaternary};
       --color-text-Tertiary:${token.colorTextTertiary};
     }
-    html, body, #root {
+    ${scopeSelector} {
       background-color: var(--color-bg-layout);
       color: var(--color-text);
       transition:

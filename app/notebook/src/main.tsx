@@ -3,6 +3,7 @@ import App from './App.tsx';
 import { App as AntdApp } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
+import useDarkStore from './store/darkMode';
 
 const queryClient = new QueryClient();
 let root: Root | null = null;
@@ -51,7 +52,10 @@ renderWithQiankun({
     if (actions) {
       actions.onGlobalStateChange((state: any, prev: any) => {
         console.log('notebook 接收到全局状态变化:', state, prev);
-      });
+        if (typeof state?.isDark === 'boolean') {
+          useDarkStore.getState().setDark(state.isDark);
+        }
+      }, true);
     }
 
     render(props);
