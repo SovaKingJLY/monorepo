@@ -6,13 +6,13 @@ export interface StreamUpdate {
     reasoning: string; // 思考过程的片段
 }
 
-// /**
-//  * 核心流式请求函数
-//  * @param {Array} messages - 聊天上下文
-//  * @param {Function} onToken - 回调函数 (update: StreamUpdate) => void
-//  * @param {Function} onDone - 完成回调
-//  * @param {Function} onError - 错误回调
-//  */
+/**
+ * 核心流式请求函数
+ * @param {Array} messages - 聊天上下文
+ * @param {Function} onToken - 回调函数 (update: StreamUpdate) => void
+ * @param {Function} onDone - 完成回调
+ * @param {Function} onError - 错误回调
+ */
 // const getStreamData = async (
 //     messages: any[],
 //     onToken: (update: StreamUpdate) => void,

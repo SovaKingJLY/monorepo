@@ -1,7 +1,6 @@
-import { Button, Layout, theme } from 'antd';
+import { Layout, theme } from 'antd';
 import styles from './floatTwoColumn.module.less';
-import { useState, type ReactElement, type ReactNode, type CSSProperties } from 'react';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { type ReactElement, type ReactNode, type CSSProperties } from 'react';
 
 const { Sider } = Layout;
 
@@ -55,6 +54,7 @@ const FloatTwoColumn = ({ contentWidth = 800, ...props }: floatTwoColumnProp) =>
                 </div>
                 <div className={styles.contentScrollArea}>
                     <div className={styles.contentWrapper} style={{ padding: `0 calc((100% - ${contentWidth}px) / 2)` }}>
+                        {/* 原理：去掉内容区域后，使用padding平分剩下宽度，就能保证左右padding是相同，所以居中，剩下的就是内容宽度了*/}
                         {props.right}
                     </div>
                 </div>

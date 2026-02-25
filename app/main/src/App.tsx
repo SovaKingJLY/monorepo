@@ -95,7 +95,7 @@ const App = () => {
             cursor: 'pointer',
             zIndex: 1000,
             transition: 'transform 0.3s',
-            userSelect: 'none'
+            userSelect: 'none' as const
         },
         chatBox: {
             position: 'fixed' as 'fixed',
