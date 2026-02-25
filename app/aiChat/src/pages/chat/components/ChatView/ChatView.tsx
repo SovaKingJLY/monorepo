@@ -2,7 +2,7 @@ import styles from './ChatView.module.less';
 import ChatInput from '../Input/ChatInput';
 import { useParams, useNavigate } from 'react-router';
 import useAiChatStore from '@/store/aiChat';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 // 新增引入
@@ -23,7 +23,9 @@ export default function ChatView() {
     const { message } = App.useApp();
 
     const listRef = useRef<List>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
     const activeSessionRef = useRef<string>('');
+    const prevChatLengthRef = useRef<number>(0);
     const cacheRef = useRef(
         new CellMeasurerCache({
             fixedWidth: true,
@@ -31,6 +33,7 @@ export default function ChatView() {
             minHeight: 72,
         })
     );
+    const [autoScroll, setAutoScroll] = useState(true); // 是否自动滚动到底部
 
     // 1. 监听路由参数变化，同步到 store
     useEffect(() => {
@@ -61,19 +64,60 @@ export default function ChatView() {
         const sessionKey = activeSessionId || '';
         if (activeSessionRef.current !== sessionKey) {
             activeSessionRef.current = sessionKey;
+            prevChatLengthRef.current = 0;
             cacheRef.current.clearAll();
             listRef.current?.recomputeRowHeights();
         }
     }, [activeSessionId]);
 
+    const lastMessage = chatList[chatList.length - 1];
+    const lastMessageContentLength = lastMessage?.content?.length ?? 0;
+    const lastReasoningContentLength = lastMessage?.reasoningContent?.length ?? 0;
+
     // 新消息（或流式更新）时，重新测量最后一条并滚动到底部
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!chatList.length) return;
+
         const lastIndex = chatList.length - 1;
-        cacheRef.current.clear(lastIndex, 0);
-        listRef.current?.recomputeRowHeights(lastIndex);
-        listRef.current?.scrollToRow(lastIndex);
-    }, [chatList]);
+        const isNewMessage = prevChatLengthRef.current !== chatList.length;
+        prevChatLengthRef.current = chatList.length;
+
+        // 新消息或流式内容增长时，重新测量最后一条高度
+        if (isNewMessage || isGenerating) {
+            cacheRef.current.clear(lastIndex, 0);
+            listRef.current?.recomputeRowHeights(lastIndex);
+        }
+
+        if ((isGenerating || isNewMessage) && autoScroll) {
+            requestAnimationFrame(() => {
+                listRef.current?.scrollToRow(lastIndex);
+                const grid = chatContainerRef.current?.querySelector('.ReactVirtualized__Grid') as HTMLElement | null;
+                if (grid) {
+                    grid.scrollTop = grid.scrollHeight;
+                }
+            });
+        }
+    }, [chatList.length, lastMessageContentLength, lastReasoningContentLength, isGenerating, autoScroll]);
+
+    // 监听滚动事件，判断是否需要停止自动滚动
+    const handleScroll = useCallback(({ clientHeight, scrollHeight, scrollTop }: { clientHeight: number, scrollHeight: number, scrollTop: number }) => {
+        const isBottom = scrollHeight - scrollTop - clientHeight <= 0; // 允许20px的误差
+        if (isBottom) {
+            setAutoScroll(true);
+            console.log("可以自动滚动");
+        } else {
+            // 如果不在底部，且正在生成中，说明用户手动向上滚动了，暂停自动滚动
+            // 注意：这里需要区分是自动滚动导致的 scrollTop 变化 还是 用户手动滚动的
+            // 简单处理：只要不在底部，就视为用户想看上面的内容
+            // 但产生的问题是：自动滚动过程中，offsetHeight变大，scrollTop还没跟上变大时，可能会误判不在底部
+            // 通常 scrollToRow 会在渲染后同步执行，所以这里简单通过位置判断即可
+
+            // 优化：只有在非生成状态，或者用户明确滚离底部较远时才取消
+            // 这里为了响应"向上滑取消自动向下"，只要离开了底部就取消 (除了初次渲染瞬间)
+            console.log("不要自动滚动");
+            setAutoScroll(false);
+        }
+    }, []);
 
     // 复制功能函数
     const handleCopy = async (text: string) => {
@@ -177,7 +221,7 @@ export default function ChatView() {
 
     return <>
         <div className={classNames(styles.wrapper, { [styles.homeWrapper]: isHome })}>
-            <div className={styles.chat}>
+            <div className={styles.chat} ref={chatContainerRef}>
                 <AutoSizer onResize={handleListResize}>
                     {({ width, height }) => (
                         <List
@@ -188,13 +232,16 @@ export default function ChatView() {
                             rowHeight={cacheRef.current.rowHeight}
                             deferredMeasurementCache={cacheRef.current}
                             rowRenderer={rowRenderer}
+                            onScroll={handleScroll}
+                            // scrollToAlignment="end"
                             overscanRowCount={4}
                         />
                     )}
                 </AutoSizer>
             </div>
             {isHome && <h2 className={styles.welcomeTitle}>今天有什么可以帮到你？</h2>}
+            <ChatInput className={isHome ? styles.homeInput : undefined} />
         </div>
-        <ChatInput className={isHome ? styles.homeInput : undefined} />
+
     </>
 }
