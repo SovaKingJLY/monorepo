@@ -51,7 +51,6 @@ export default function Login() {
                 name="log"
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 24 }}
-
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}

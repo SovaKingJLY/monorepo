@@ -9,25 +9,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(({ mode }) => {
   const envDir = path.resolve(__dirname, 'env');
   const env = loadEnv(mode, envDir);
   const isProduction = mode === 'production';
-  const cliCommand = process.argv.find(arg => arg.startsWith('--command='))?.split('=')[1];
-  const backendCommand = (cliCommand || env.VITE_BACKEND_COMMAND || '').toLowerCase();
 
-  const localApiTarget = env.VITE_LOCAL_API_TARGET || 'http://localhost:3002';
-  const remoteApiTarget = env.VITE_REMOTE_API_TARGET || 'http://124.221.73.180:3002';
-
-  const useLocalBackend = backendCommand
-    ? backendCommand === 'local'
-    : command === 'serve';
-
-  const apiProxyTarget = useLocalBackend ? localApiTarget : remoteApiTarget;
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET;
+  //'http://124.221.73.180:3002';
   // console.log(isProduction)
   return {
     envDir: './env',
-    base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : 'http://localhost:5175/', //CDN
+    base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : 'http://localhost:5175/',
+    //生产环境下使用CDN,去redsources.jlyproject.cn/vite下找文件
     plugins: [
       react(),
       qiankun('notebook', {
@@ -76,7 +69,8 @@ export default defineConfig(({ mode, command }) => {
       proxy: {//服务器代理，防止跨域报错
         '/api': { // 1. 拦截指令：管家，凡是看到 '/api' 开头的请求，都要拦下来处理
 
-          target: apiProxyTarget, // 2. 目标地址：实际的收信人是谁
+          target: apiProxyTarget,
+          // 2. 目标地址：实际的收信人是谁
 
           changeOrigin: true, // 3. 伪装身份：非常重要！
           // 解释：很多后端服务器会检查 "Host" 请求头。

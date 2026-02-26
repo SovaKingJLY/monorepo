@@ -3,6 +3,16 @@ import { message } from "antd";
 import useUserStore from "../../store/user";
 import { useAiChatStore } from "../../store/aiChatStore";
 
+type RetryableConfig = {
+    _retry?: boolean;
+    url?: string;
+    headers?: Record<string, string>;
+};
+
+const shouldSkipRefresh = (url?: string): boolean => {
+    if (!url) return false;
+    return url.includes('/token/renewAccessToken/') || url.includes('/admin/renewAccessToken/') || url.includes('/token/logoutToken/');
+};
 
 export const http = axios.create({
     baseURL: `${import.meta.env.VITE_BASE_URL}`,
@@ -10,15 +20,23 @@ export const http = axios.create({
     timeout: 10000,
 })
 
+const refreshHttp = axios.create({
+    baseURL: `${import.meta.env.VITE_BASE_URL}`,
+    withCredentials: true,
+    timeout: 10000,
+})
+
 http.interceptors.request.use(config => {//发送时的拦截器,加上token
+
     const accessTokentoken = useUserStore.getState().accessToken;
+    console.log(accessTokentoken, "此时发送的token");
     if (accessTokentoken)
-        config.headers['Authorization'] = 'Bearer ' + accessTokentoken;
+        config.headers['Authorization'] = "Bearer " + accessTokentoken;
     return config;
 });
 
 let isRefreshing = false;
-let requests: Function[] = [];
+let requests: Array<(token: string | null) => void> = [];
 
 http.interceptors.response.use(//接收时的拦截器
     async (response) => {//网络上没错
@@ -26,59 +44,89 @@ http.interceptors.response.use(//接收时的拦截器
         if (response.data.code < 300) {
             return response.data.data;
         }
-        // else if (response.data.code == 401) {//当accesstoken过期时
-        //     // const config = response.config;
-        //     // if (isRefreshing == false) {
-        //     //     isRefreshing = true;
-        //     //     try {
-        //     //         const res = await renewTokenRequest();
-        //     //         useUserStore.getState().setAccessToken(res);
-        //     //         requests.forEach((cb) => cb(res));//通知每个函数，执行一下
-        //     //         // 2. 清空队列
-        //     //         requests = [];
-        //     //         // 3. 重试当前请求
-        //     //         const config = response.config;
-        //     //         config.headers['Authorization'] = 'Bearer ' + res;
-        //     //         return http(config);
-        //     //     } catch (e) {
-        //     //         requests.forEach((cb) => cb(null)); // 通知队列里的请求失败
-        //     //         requests = [];
-        //     //         message.error('登录已过期，请重新登录');
-        //     //         useUserStore.getState().logout(); // 假设store里有logout方法
-        //     //     } finally {
-        //     //         isRefreshing = false;
-        //     //     }
+        else if (response.data.code == 401) {//当accesstoken过期时
+            console.log("续期accesstoken");
+            const config = response.config as RetryableConfig;
 
-        //     // } else {
-        //     //     return new Promise((resolve) => {
-        //     //         // 我们把一个“回调函数”推入队列
-        //     //         requests.push(
-        //     //             (token: string) => {
-        //     //                 // 这个函数现在不会执行，它只是被存起来了
-        //     //                 // 等到将来被调用，并且传入 token 时，它才会执行下面的代码：
-        //     //                 config.headers['Authorization'] = 'Bearer ' + token; // 1. 换新票
-        //     //                 resolve(http(config)); // 2. 重新发请求，并把结果返回给外面的 Promise
-        //     //             }
-        //     //         );
-        //     //     });
-        //     // }
-        // }
+            // 续期接口/登出接口本身 401，不再继续套娃续期
+            if (shouldSkipRefresh(config.url)) {
+                useUserStore.getState().setAccessToken("");
+                useUserStore.getState().setRole("");
+                useUserStore.getState().setIsLogin(false);
+                return Promise.reject(response.data.message || '登录已过期');
+            }
+
+            // 同一个请求最多只重试一次，避免死循环
+            if (config._retry) {
+                useUserStore.getState().setAccessToken("");
+                useUserStore.getState().setRole("");
+                useUserStore.getState().setIsLogin(false);
+                return Promise.reject(response.data.message || '登录已过期');
+            }
+
+            if (isRefreshing == false) {
+                isRefreshing = true;
+                try {
+                    const res = await renewTokenRequest();
+                    useUserStore.getState().setAccessToken(res.accessToken);
+                    requests.forEach((cb) => cb(res));//通知每个函数，执行一下
+                    // 2. 清空队列
+                    requests = [];
+                    // 3. 重试当前请求
+                    const config = response.config as RetryableConfig;
+                    config._retry = true;
+                    config.headers = config.headers || {};
+                    config.headers['Authorization'] = 'Bearer ' + res;
+                    return http(config);
+                } catch (e) {
+                    requests.forEach((cb) => cb(null)); // 通知队列里的请求失败
+                    requests = [];
+                    message.error('登录已过期，请重新登录');
+                    // 这里只做本地清理，避免 logout 接口再次触发 401->续期 循环
+                    useUserStore.getState().setAccessToken("");
+                    useUserStore.getState().setRole("");
+                    useUserStore.getState().setIsLogin(false);
+                    return Promise.reject(e);
+                } finally {
+                    isRefreshing = false;
+                }
+
+            } else {
+                return new Promise((resolve, reject) => {
+                    // 我们把一个“回调函数”推入队列
+                    requests.push(
+                        (token: string | null) => {
+                            // 这个函数现在不会执行，它只是被存起来了
+                            // 等到将来被调用，并且传入 token 时，它才会执行下面的代码：
+                            if (!token) {
+                                reject('登录已过期');
+                                return;
+                            }
+                            config._retry = true;
+                            config.headers = config.headers || {};
+                            config.headers['Authorization'] = 'Bearer ' + token; // 1. 换新票
+                            resolve(http(config)); // 2. 重新发请求，并把结果返回给外面的 Promise
+                        }
+                    );
+                });
+            }
+        }
         else {
             return Promise.reject(response.data.message);
         }
     }, errorInfo => {
-        message.error(errorInfo.data);
+        message.error(errorInfo?.response?.data?.message || '请求失败');
         return Promise.reject("error");
     }
 )
 
 
-
-
-
-
-const renewTokenRequest = async (): Promise<string> => {
-    return await http.post('/token/renewAccessToken/');
+const renewTokenRequest = async (): Promise<any> => {
+    const res = await refreshHttp.post('/admin/renewAccessToken/');
+    if (res.data.code < 300) {
+        return res.data.data;
+    }
+    else return Promise.reject(res.data.message || '续期失败');
 }
 
 

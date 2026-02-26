@@ -24,7 +24,6 @@ function App() {
   }, [isDark])
 
   useEffect(() => {//取出token,设置全局变量,和后端进行检验
-
     const init = async () => {
       try {
         await loginCheck();
@@ -32,6 +31,7 @@ function App() {
         UserStore.setIsLogin(true);
         UserStore.setRole('管理员');//目前就管理员
         UserStore.setIsLoading(false);
+        console.log(UserStore);
       } catch {
         UserStore.setIsLoading(false);
         UserStore.logout();

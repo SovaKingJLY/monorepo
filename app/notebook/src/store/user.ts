@@ -29,10 +29,10 @@ const useUserStore = create<userStore>()(
                 set({ role: newRole });
             },
             login: async (params) => {
-                const res = await loginRequest(params);
+                const res = await loginRequest(params);  
                 if (params.remember) {
                     set({
-                        // accessToken: res.accessToken,
+                        accessToken: res.accessToken,
                         role: res.role, isLogin: true,
                     });
 
