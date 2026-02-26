@@ -9,11 +9,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  // const envDir = path.resolve(__dirname, 'env');
-  // const env = loadEnv(mode, envDir);
-  // console.log(env, "这里") // 输出: My Cool App
+export default defineConfig(({ mode, command }) => {
+  const envDir = path.resolve(__dirname, 'env');
+  const env = loadEnv(mode, envDir);
   const isProduction = mode === 'production';
+  const cliCommand = process.argv.find(arg => arg.startsWith('--command='))?.split('=')[1];
+  const backendCommand = (cliCommand || env.VITE_BACKEND_COMMAND || '').toLowerCase();
+
+  const localApiTarget = env.VITE_LOCAL_API_TARGET || 'http://localhost:3002';
+  const remoteApiTarget = env.VITE_REMOTE_API_TARGET || 'http://124.221.73.180:3002';
+
+  const useLocalBackend = backendCommand
+    ? backendCommand === 'local'
+    : command === 'serve';
+
+  const apiProxyTarget = useLocalBackend ? localApiTarget : remoteApiTarget;
   // console.log(isProduction)
   return {
     envDir: './env',
@@ -66,18 +76,18 @@ export default defineConfig(({ mode }) => {
       proxy: {//服务器代理，防止跨域报错
         '/api': { // 1. 拦截指令：管家，凡是看到 '/api' 开头的请求，都要拦下来处理
 
-          target: 'http://124.221.73.180:3002', // 2. 目标地址：实际的收信人是谁
+          target: apiProxyTarget, // 2. 目标地址：实际的收信人是谁
 
           changeOrigin: true, // 3. 伪装身份：非常重要！
           // 解释：很多后端服务器会检查 "Host" 请求头。
           // 如果设置为 false：后端看到 Host 是 localhost:5173，可能会拒绝服务（觉得你是外人）。
-          // 如果设置为 true：Vite 会把 Host 头偷偷改成 124.221.73.180:3002。
+          // 如果设置为 true：Vite 会把 Host 头改成 target 对应的地址。
           // 也就是管家对后端说：“我是自己人，我就是从你们那边来的。”
 
           rewrite: (path) => path.replace(/^\/api/, ''),// 4. 路径重写：撕掉标签
           headers: {
-            Referer: 'http://124.221.73.180:3002',
-            Origin: 'http://124.221.73.180:3002'
+            Referer: apiProxyTarget,
+            Origin: apiProxyTarget
           }
           // 解释：
           // 你发的是：/api/user

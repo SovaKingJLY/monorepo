@@ -2,7 +2,7 @@ import styles from './ChatView.module.less';
 import ChatInput from '../Input/ChatInput';
 import { useParams, useNavigate } from 'react-router';
 import useAiChatStore from '@/store/aiChat';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 
 // 新增引入
@@ -12,7 +12,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List, type ListRowRenderer } from 'react-virtualized';
 
 export default function ChatView() {
     const { id } = useParams();
@@ -22,16 +21,8 @@ export default function ChatView() {
     // 获取 message 实例用于提示
     const { message } = App.useApp();
 
-    const listRef = useRef<List>(null);
-    const activeSessionRef = useRef<string>('');
-    const [isAtBottom, setIsAtBottom] = useState(true);
-    const cacheRef = useRef(
-        new CellMeasurerCache({
-            fixedWidth: true,
-            defaultHeight: 120,
-            minHeight: 72,
-        })
-    );
+    // 自动滚动到底部
+    const bottomRef = useRef<HTMLDivElement>(null);
 
     // 1. 监听路由参数变化，同步到 store
     useEffect(() => {
@@ -57,29 +48,11 @@ export default function ChatView() {
     // 是否为首页（无会话ID）
     const isHome = !id;
 
-    // 会话切换时重置高度缓存
+    // 滚动到底部
     useEffect(() => {
-        const sessionKey = activeSessionId || '';
-        if (activeSessionRef.current !== sessionKey) {
-            activeSessionRef.current = sessionKey;
-            cacheRef.current.clearAll();
-            listRef.current?.recomputeRowHeights();
-            setIsAtBottom(true);
-        }
-    }, [activeSessionId]);
-
-    // 新消息（或流式更新）时，重新测量最后一条
-    useEffect(() => {
-        if (!chatList.length) return;
-        const lastIndex = chatList.length - 1;
-        cacheRef.current.clear(lastIndex, 0);
-        listRef.current?.recomputeRowHeights(lastIndex);
-        if (isAtBottom || isGenerating) {
-            requestAnimationFrame(() => {
-                listRef.current?.scrollToRow(lastIndex);
-            });
-        }
-    }, [chatList, isAtBottom, isGenerating]);
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        console.log(chatList);
+    }, [chatList.length, curSession]);
 
     // 复制功能函数
     const handleCopy = async (text: string) => {
@@ -92,42 +65,22 @@ export default function ChatView() {
         }
     };
 
-    const handleListResize = useCallback(() => {
-        cacheRef.current.clearAll();
-        listRef.current?.recomputeRowHeights();
-    }, []);
+    return <>
+        <div className={classNames(styles.wrapper, { [styles.homeWrapper]: isHome })}>
+            <div className={styles.chat}>
+                {chatList.map((item, index) => {
+                    const isUser = item.role === 'user';
+                    const isLastMessage = index === chatList.length - 1;
+                    const showCopy = isUser || !isLastMessage || !isGenerating;
 
-    const handleListScroll = useCallback(({ clientHeight, scrollHeight, scrollTop }: {
-        clientHeight: number;
-        scrollHeight: number;
-        scrollTop: number;
-    }) => {
-        const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
-        setIsAtBottom(distanceToBottom <= 48);
-    }, []);
-
-    const rowRenderer = useCallback<ListRowRenderer>(({ index, key, parent, style }) => {
-        const item = chatList[index];
-        const isUser = item.role === 'user';
-        const isLastMessage = index === chatList.length - 1;
-        const showCopy = isUser || !isLastMessage || !isGenerating;
-
-        return (
-            <CellMeasurer
-                cache={cacheRef.current}
-                columnIndex={0}
-                key={key}
-                parent={parent}
-                rowIndex={index}
-            >
-                {({ registerChild }) => (
-                    <div ref={registerChild} style={{ ...style, paddingBottom: 24, boxSizing: 'border-box' }}>
+                    return (
                         <div
+                            key={index}
                             className={classNames(styles.message, {
                                 [styles.userMessage]: isUser,
                                 [styles.aiMessage]: !isUser
                             })}
-                            style={{ marginBottom: 0 }}
+
                         >
                             <div className={classNames({ [styles.content]: !isUser })}>
                                 <div className={classNames(styles.messageBubble, {
@@ -167,6 +120,7 @@ export default function ChatView() {
                                         >
                                             {item.content.replace(/\n\n+/g, '\n')}
                                         </ReactMarkdown>
+                                        {/* {item.content} */}
                                     </div>}
                                 </div>
                                 <div className={classNames(styles.tools, { [styles.userTools]: isUser })}>
@@ -184,32 +138,9 @@ export default function ChatView() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </CellMeasurer>
-        );
-    }, [chatList, isGenerating]);
-
-    return <>
-        <div className={classNames(styles.wrapper, { [styles.homeWrapper]: isHome })}>
-            <div className={styles.chat}>
-                <AutoSizer onResize={handleListResize}>
-                    {({ width, height }) => (
-                        <List
-                            ref={listRef}
-                            width={width}
-                            height={height}
-                            rowCount={chatList.length}
-                            rowHeight={cacheRef.current.rowHeight}
-                            deferredMeasurementCache={cacheRef.current}
-                            rowRenderer={rowRenderer}
-                            overscanRowCount={4}
-                            onScroll={handleListScroll}
-                            scrollToAlignment="end"
-                            scrollToIndex={chatList.length > 0 && (isAtBottom || isGenerating) ? chatList.length - 1 : undefined}
-                        />
-                    )}
-                </AutoSizer>
+                    );
+                })}
+                <div ref={bottomRef} style={{ float: "left", clear: "both" }} />
             </div>
             {isHome && <h2 className={styles.welcomeTitle}>今天有什么可以帮到你？</h2>}
         </div>
