@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import uploadBundleQiniu from '@repo/qiniu';
 import qiankun from 'vite-plugin-qiankun';
+import { visualizer } from 'rollup-plugin-visualizer';
 //import qiniu from 'vite-plugin-qiniu'; // 引入插件
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +13,8 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
   const envDir = path.resolve(__dirname, 'env');
   const env = loadEnv(mode, envDir);
-  const isProduction = mode === 'production';
+  const isAnalyze = mode === 'analyze';
+  const isProduction = mode === 'production' || isAnalyze;
 
   const apiProxyTarget = env.VITE_API_PROXY_TARGET;
   //'http://124.221.73.180:3002';
@@ -27,7 +29,7 @@ export default defineConfig(({ mode }) => {
         useDevMode: true
       }),
 
-      uploadBundleQiniu({
+      !isAnalyze && uploadBundleQiniu({
         accessKey: 'EIriimCUVKCk0G4gCFACezpYSZFvpZ6L8IvQqYUR',
         secretKey: 'oN_nA1SkDFDOpjxf3c4gfw_LGwtEGBb9TV-yzsDE',
         bucket: 'jlyred',
@@ -36,6 +38,14 @@ export default defineConfig(({ mode }) => {
           html: 0,
           assets: 31536000
         }
+      }),
+
+      isAnalyze && visualizer({
+        filename: 'dist/stats.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        template: 'treemap'
       })
     ],
     resolve: {
@@ -45,17 +55,23 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-                return 'reactVendor';
-              }
-              if (id.includes('antd') || id.includes('@ant-design/icons')) return 'antdVendor';
-              else return 'mainVendor';
-            }
-          }
-        }
+        // output: {
+        //   manualChunks(id) {
+        //     if (!id.includes('node_modules')) return;
+
+        //     // 仅拆 antd 生态，避免与 react 强拆后形成循环依赖
+        //     if (
+        //       id.includes('/antd/') ||
+        //       id.includes('\\antd\\') ||
+        //       id.includes('@ant-design') ||
+        //       id.includes('/rc-') ||
+        //       id.includes('\\rc-') ||
+        //       id.includes('@rc-component')
+        //     ) {
+        //       return 'antdVendor';
+        //     }
+        //   }
+        // }
       }
     },
     server: {

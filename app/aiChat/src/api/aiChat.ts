@@ -1,5 +1,3 @@
-import useUserStore from "@/store/user";
-
 // 定义回调数据的接口
 export interface StreamUpdate {
     content: string;   // 最终回答的片段
@@ -38,7 +36,7 @@ export interface StreamUpdate {
 //                 stream: true,
 //                 temperature: 0.6 // 回复的随机性
 //             })
-//         });
+//         });   
 //         console.log(res);
 //         if (!res.ok) {
 //             const errorText = await res.text();

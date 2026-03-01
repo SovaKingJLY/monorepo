@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Checkbox, Form, Input, Card, message, Typography } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router';
 // 如果报错找不到 react-router，请检查是否应该用 react-router-dom，这里沿用 main.tsx 的风格
-import { login, type LoginParams } from '../api/auth';
+import { type LoginParams } from '../api/auth';
 import styles from './Login.module.css';
 import { useUserStore } from '../store/user';
 
@@ -11,7 +11,7 @@ const { Title } = Typography;
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
-    const { login, loginLoading } = useUserStore();
+    const { login } = useUserStore();
 
     const onFinish = async (value: LoginParams) => {
         try {

@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useBlocker, useNavigate, useSearchParams } from 'react-router';
 import useDarkStore from '../../store/darkMode';
 import { getTags, getText, updateText, uploadText } from '@/api/http/text/textRequest';
-import { qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 import { getAssetUrl } from '@/utils/asset-path';
 
 

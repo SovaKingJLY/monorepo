@@ -7,7 +7,7 @@ import Sider from 'antd/es/layout/Sider';
 import ChatLayout from './layout/AIChatMain/ChatLayout';
 import { useAiChatStore } from '../../store/aiChatStore';
 import AiSiderMenu from './layout/menu/AiSiderMenu';
-import useThrottle from '../../hooks/useThrottle';
+import { useThrottle } from '@my-project/hooks';
 
 interface Pos {
     nowX: number,

@@ -5,9 +5,14 @@ import { useAiChatStore } from "../../store/aiChatStore";
 
 type RetryableConfig = {
     _retry?: boolean;
+    _retryCount?: number;
     url?: string;
     headers?: Record<string, string>;
 };
+
+const MAX_HTTP_RETRIES = 3;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const shouldSkipRefresh = (url?: string): boolean => {
     if (!url) return false;
@@ -27,7 +32,6 @@ const refreshHttp = axios.create({
 })
 
 http.interceptors.request.use(config => {//发送时的拦截器,加上token
-
     const accessTokentoken = useUserStore.getState().accessToken;
     console.log(accessTokentoken, "此时发送的token");
     if (accessTokentoken)
@@ -114,7 +118,20 @@ http.interceptors.response.use(//接收时的拦截器
         else {
             return Promise.reject(response.data.message);
         }
-    }, errorInfo => {
+    }, async errorInfo => {
+        const config = errorInfo?.config as RetryableConfig | undefined;
+        const canRetry = !!config;
+
+        if (canRetry) {
+            config._retryCount = config._retryCount ?? 0;
+
+            if (config._retryCount < MAX_HTTP_RETRIES) {
+                config._retryCount += 1;
+                await sleep(300 * config._retryCount);
+                return http(config);
+            }
+        }
+
         message.error(errorInfo?.response?.data?.message || '请求失败');
         return Promise.reject("error");
     }

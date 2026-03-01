@@ -34,6 +34,7 @@ function App(props: any) {
 
   useEffect(() => {
     const init = async () => {
+      console.log("初始化");
       await checkLogin();
     }
     init();

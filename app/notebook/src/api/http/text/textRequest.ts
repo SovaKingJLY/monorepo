@@ -17,22 +17,22 @@ export const getAllText = async (): Promise<Text[]> => {
 export const setPinTextHttp = async (id: number): Promise<Text[]> => {
     console.log(id);
     return await http.post('/article/setQuickAccess/', { id });
-}
+};
 
 // 3. 取消置顶
 export const setUnPinTextHttp = async (id: number): Promise<Text[]> => {
     return await http.post('/article/removeQuickAccess/', { id });
-}
+};
 
 // 4. 获取所有置顶文章
 export const getAllPinText = async (): Promise<Text[]> => {
     return await http.post('/article/getQuickAccess/');
-}
+};
 
 // 5. 获取单篇文章详情
 export const getText = async (id: number): Promise<Text> => {
     return await http.post('/articleGet/getArticle/', { id });
-}
+};
 
 // 6. 搜索文章
 export const searchTextByKeyword = async (keyword: string): Promise<Text[]> => {
@@ -42,21 +42,21 @@ export const searchTextByKeyword = async (keyword: string): Promise<Text[]> => {
         page: 1,
         sizes: 10
     });
-}
+};
+
 export const getTags = async (): Promise<string[]> => {
     return await http.post('/articleGet/getAllTags/');
-}
+};
 
 export const getInfo = async (): Promise<loginRes> => {
     return await http.post('/admin/renewAccessToken/');
-}
+};
 
 // 1. 新增文章
 export const uploadText = async (text: Text): Promise<string> => {
     // 对应后端 @PostMapping("/addNew")
     return await http.post('/article/addNew/', {
         // 新增时通常不需要传 id，或者传 null。
-        // 原代码传的是空字符串 ''，如果后端 id 是数字类型，传 '' 会报错，所以建议直接不传 id
         content: text.content,
         title: text.title,
         tag: text.tag
@@ -65,7 +65,7 @@ export const uploadText = async (text: Text): Promise<string> => {
             'Content-Type': 'application/json;charset=UTF-8'
         }
     });
-}
+};
 
 // 2. 更新文章
 export const updateText = async (text: Text): Promise<string> => {

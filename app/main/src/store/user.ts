@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { loginRequest, logoutAdmin, loginCheck } from '@/api/login';
 import { message } from 'antd';
 
+const TOKEN_KEY = 'token';
+
 export interface LoginParams {
     email: string | null;
     password: string | null;
@@ -20,8 +22,10 @@ export const useUserStore = create<UserState>((set) => ({
     isLogin: false,
     loginLoading: false,
     checkLogin: async () => {
+        console.log("判断是否登录");
         try {
             await loginCheck();
+
             set({ isLogin: true });
         } catch (error) {
             set({ isLogin: false });
@@ -30,7 +34,10 @@ export const useUserStore = create<UserState>((set) => ({
     login: async (params: LoginParams) => {
         set({ loginLoading: true });
         try {
-            await loginRequest(params);
+            const res = await loginRequest(params);
+            if (res?.accessToken) {
+                localStorage.setItem(TOKEN_KEY, res.accessToken);
+            }
             set({ isLogin: true });
             return true;
         } catch (error) {
@@ -49,6 +56,7 @@ export const useUserStore = create<UserState>((set) => ({
             console.error('Logout failed:', error);
         } finally {
             // 无论服务端注销是否成功，前端都清除状态
+            localStorage.removeItem(TOKEN_KEY);
             set({ isLogin: false });
             message.success('已注销');
         }

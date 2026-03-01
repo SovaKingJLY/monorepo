@@ -82,7 +82,7 @@ export default function Left(prop: leftProp) {
                     shape="circle" >
                 </Skeleton.Avatar> : ''}
                 <Skeleton paragraph={{ rows: 6 }} loading={UserStore.isLoading}>
-                    <img className={styles.avatar} src='https://redsources.jlyproject.cn/20a8608b-2567-4d5a-984b-b0f0d9ac579b.jpg?imageMogr2/format/webp' />
+                    <img className={styles.avatar} src='https://redsources.jlyproject.cn/20a8608b-2567-4d5a-984b-b0f0d9ac579b.jpg?imageMogr2/format/webp/quality/1' />
                     <div onClick={jump} className={styles.title}>
                         JLY Blog
                     </div>

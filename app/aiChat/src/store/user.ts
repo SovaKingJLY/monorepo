@@ -30,6 +30,7 @@ const useUserStore = create<userStore>()(
                 try {
                     await loginCheck();
                     set({ isLogin: true });
+                    console.log("aichat自动登录");
                 } catch (error) {
                     set({ isLogin: false });
                 } finally {

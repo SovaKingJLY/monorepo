@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router'
 import './App.less'
 import router from './router/router'
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useDarkStore from './store/darkMode'
 import useUserStore from './store/user'
 import { ConfigProvider } from 'antd'
@@ -31,7 +31,6 @@ function App() {
         UserStore.setIsLogin(true);
         UserStore.setRole('管理员');//目前就管理员
         UserStore.setIsLoading(false);
-        console.log(UserStore);
       } catch {
         UserStore.setIsLoading(false);
         UserStore.logout();

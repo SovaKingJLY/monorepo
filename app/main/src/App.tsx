@@ -7,7 +7,7 @@ import './App.less'
 
 const App = () => {
     const navigate = useNavigate();
-    const { checkLogin } = useUserStore();
+    const { checkLogin, isLogin } = useUserStore();
     const [isChatLoading, setIsChatLoading] = useState(false);
     // 聊天窗口状态
     const [showChat, setShowChat] = useState(false);
@@ -126,43 +126,47 @@ const App = () => {
             <Outlet />
         </div>
 
+        {
+            isLogin && <>
+                <div style={styles.chatBox} > {/* 这里 ref 仅用于可能的外部定位引用，或者可以去掉 */}
 
-        <div style={styles.chatBox} > {/* 这里 ref 仅用于可能的外部定位引用，或者可以去掉 */}
+                    {/* 区域 A：专门给 Qiankun 用的“无人区”，React 不要在里面渲染任何子元素 */}
+                    <div
+                        ref={chatContainerRef}
+                        style={{ width: '100%', height: '100%' }}
+                    />
 
-            {/* 区域 A：专门给 Qiankun 用的“无人区”，React 不要在里面渲染任何子元素 */}
-            <div
-                ref={chatContainerRef}
-                style={{ width: '100%', height: '100%' }}
-            />
-
-            {/* 区域 B：React 控制的 Loading 遮罩层，覆盖在上面 */}
-            {isChatLoading && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)', //以此遮挡加载过程中的闪烁
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 10
-                }}>
-                    <span>努力加载中...</span>
+                    {/* 区域 B：React 控制的 Loading 遮罩层，覆盖在上面 */}
+                    {isChatLoading && (
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)', //以此遮挡加载过程中的闪烁
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 10
+                        }}>
+                            <span>努力加载中...</span>
+                        </div>
+                    )}
                 </div>
-            )}
-        </div>
 
 
-        {/* 悬浮框 */}
-        <div
-            style={styles.floatingBox}
-            onClick={toggleChat}
-            title={showChat ? "关闭聊天" : "打开聊天"}
-        >
-            <span style={{ fontSize: '24px' }}>{showChat ? '-' : '+'}</span>
-        </div>
+                {/* 悬浮框 */}
+                <div
+                    style={styles.floatingBox}
+                    onClick={toggleChat}
+                    title={showChat ? "关闭聊天" : "打开聊天"}
+                >
+                    <span style={{ fontSize: '24px' }}>{showChat ? '-' : '+'}</span>
+                </div>
+            </>
+        }
+
     </>
 };
 
