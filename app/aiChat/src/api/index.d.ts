@@ -30,3 +30,5 @@ declare module 'react-syntax-highlighter/dist/esm/prism';
 
 // 解决样式文件报错 (非常重要，否则你的 vscDarkPlus 还会报错)
 declare module 'react-syntax-highlighter/dist/esm/styles/prism';
+
+declare module 'react-window';
