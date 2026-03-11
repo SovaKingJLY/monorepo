@@ -39,7 +39,7 @@ interface multiChat {
 
 const useAiChatStore = create<multiChat>()((set, get) => {
     return {
-        // --- Initial State ---
+        // --- Initial State ---3333333
         aiChatState: {}, // [修改点 2]：初始化为空对象 {}
         curSession: '',
         successList: [],

@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget = env.VITE_API_PROXY_TARGET;
   //'http://124.221.73.180:3002';
   // console.log(isProduction)
+
   return {
     envDir: './env',
     base: isProduction ? 'https://redsources.jlyproject.cn/vite/' : 'http://localhost:5175/',
@@ -34,10 +35,10 @@ export default defineConfig(({ mode }) => {
         secretKey: 'oN_nA1SkDFDOpjxf3c4gfw_LGwtEGBb9TV-yzsDE',
         bucket: 'jlyred',
         remotePath: `vite`,
-        cacheControl: {
-          html: 0,
-          assets: 31536000
-        }
+        // cacheControl: {
+        //   html: 0,
+        //   assets: 31536000
+        // }
       }),
 
       isAnalyze && visualizer({
@@ -55,23 +56,22 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        // output: {
-        //   manualChunks(id) {
-        //     if (!id.includes('node_modules')) return;
-
-        //     // 仅拆 antd 生态，避免与 react 强拆后形成循环依赖
-        //     if (
-        //       id.includes('/antd/') ||
-        //       id.includes('\\antd\\') ||
-        //       id.includes('@ant-design') ||
-        //       id.includes('/rc-') ||
-        //       id.includes('\\rc-') ||
-        //       id.includes('@rc-component')
-        //     ) {
-        //       return 'antdVendor';
-        //     }
-        //   }
-        // }
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            const name = id.toString().split('node_modules/')[1].split('/')[0];
+            // 仅拆 antd 生态，避免与 react 强拆后形成循环依赖
+            if (['react', 'react-dom', 'react-router', 'zustand', 'use-immer',].includes(name)) {
+              return 'vendor-core';
+            }
+            if (name === 'antd' || name.startsWith('@ant-design') || name.startsWith('rc-')) {
+              return 'vendor-antd';
+            }
+            if (['react-syntax-highlighter', 'highlight.js', 'refractor', 'lowlight'].includes(name)) {
+              return 'vendor-syntax';
+            }
+          }
+        }
       }
     },
     server: {

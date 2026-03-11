@@ -71,16 +71,16 @@ http.interceptors.response.use(//接收时的拦截器
             if (isRefreshing == false) {
                 isRefreshing = true;
                 try {
-                    const res = await renewTokenRequest();
-                    useUserStore.getState().setAccessToken(res.accessToken);
-                    requests.forEach((cb) => cb(res));//通知每个函数，执行一下
+                    const newToken = await renewTokenRequest();
+                    useUserStore.getState().setAccessToken(newToken);
+                    requests.forEach((cb) => cb(newToken));//通知每个函数，执行一下
                     // 2. 清空队列
                     requests = [];
                     // 3. 重试当前请求
                     const config = response.config as RetryableConfig;
                     config._retry = true;
                     config.headers = config.headers || {};
-                    config.headers['Authorization'] = 'Bearer ' + res;
+                    config.headers['Authorization'] = 'Bearer ' + newToken;
                     return http(config);
                 } catch (e) {
                     requests.forEach((cb) => cb(null)); // 通知队列里的请求失败
@@ -138,10 +138,19 @@ http.interceptors.response.use(//接收时的拦截器
 )
 
 
-const renewTokenRequest = async (): Promise<any> => {
+const renewTokenRequest = async (): Promise<string> => {
     const res = await refreshHttp.post('/admin/renewAccessToken/');
     if (res.data.code < 300) {
-        return res.data.data;
+        const tokenCandidate = res.data?.data;
+        const accessToken = typeof tokenCandidate === 'string'
+            ? tokenCandidate
+            : tokenCandidate?.accessToken || tokenCandidate?.access_token;
+
+        if (!accessToken) {
+            return Promise.reject('续期失败：未返回 accessToken');
+        }
+
+        return accessToken;
     }
     else return Promise.reject(res.data.message || '续期失败');
 }

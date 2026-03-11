@@ -2,97 +2,81 @@ import qiniu from 'qiniu';
 import path from 'path';
 import type { Plugin } from 'vite';
 import type { OutputBundle } from 'rollup';
-import mime from 'mime-types'; // 🎯 [修复] 引入 mime 库
+import mime from 'mime-types';
+
+/**
+ * 插件配置参数接口
+ */
 export interface QiniuOptions {
     accessKey: string;
     secretKey: string;
     bucket: string;
+    /** 存储区域，如：Zone_z2 (华南), Zone_z0 (华东) */
     zone?: keyof typeof qiniu.zone;
-
-    /**
-     * 🎯 [新增] 上传的根目录（前缀）
-     * 例如：'project-a/v1.0.0/'
-     * 如果不传，则默认上传到 Bucket 根目录
+    /** * 上传到七牛云的根目录前缀 
+     * 例如：'assets/v1.0.0/'
      */
     remotePath?: string;
-
-    /**
-     * 缓存控制
-     */
-    cacheControl?: {
-        html?: number;
-        assets?: number;
-    } | number;
 }
 
 export default function uploadBundleQiniu(options: QiniuOptions): Plugin {
+    // 1. 初始化七牛认证鉴权
     const mac = new qiniu.auth.digest.Mac(options.accessKey, options.secretKey);
+
+    // 2. 配置七牛上传环境
     const config = new qiniu.conf.Config();
     if (options.zone && qiniu.zone[options.zone]) {
         config.zone = qiniu.zone[options.zone];
     }
 
     const formUploader = new qiniu.form_up.FormUploader(config);
-    const bucketManager = new qiniu.rs.BucketManager(mac, config);
-
-    // ❌ [移除] 不要在这里定义 putExtra，因为它是单例，无法针对不同文件设置不同 MIME
-    // const putExtra = new qiniu.form_up.PutExtra();
-
-    const getCacheControlHeader = (fileName: string): string | null => {
-        // ... (保持不变) ...
-        if (!options.cacheControl) return null;
-        let maxAge = 0;
-        if (typeof options.cacheControl === 'number') {
-            maxAge = options.cacheControl;
-        } else {
-            const isHtml = fileName.endsWith('.html');
-            maxAge = isHtml ? (options.cacheControl.html ?? 0) : (options.cacheControl.assets ?? 31536000);
-        }
-        return `public, max-age=${maxAge}`;
-    };
 
     return {
-        name: "uploadBundleQiniu",
-        writeBundle: async (_outputOptions, bundle: OutputBundle) => {
+        name: "vite-plugin-upload-qiniu",
+        // 仅在打包（build）模式下生效
+        apply: 'build',
+
+        /**
+         * writeBundle 钩子在文件成功写入磁盘后触发
+         */
+        async writeBundle(_outputOptions, bundle: OutputBundle) {
             const uploadPromises: Promise<void>[] = [];
             const remotePrefix = options.remotePath || '';
 
-            console.log(`\n🚀 [Qiniu] 开始上传到: ${options.bucket}/${remotePrefix}`);
+            console.log(`\n☁️  [Qiniu] 开始上传至存储桶: ${options.bucket}`);
+            if (remotePrefix) console.log(`📂 [Qiniu] 远程路径前缀: ${remotePrefix}`);
 
+            // 遍历打包生成的资源列表
             for (const [fileName, file] of Object.entries(bundle)) {
+                // 拼接最终的远程存储 Key (使用 POSIX 标准路径分隔符)
                 const key = path.posix.join(remotePrefix, fileName);
+
+                // 获取文件内容：Asset 为 Buffer，Chunk 为 string
                 const content = file.type === 'asset' ? file.source : file.code;
 
-                // 🎯 [修复] 1. 获取准确的 MIME Type
-                // 如果 lookup 失败，回退到 octet-stream，但通常 js/css 都能识别准确
+                // 获取 MIME 类型，确保 CDN 正确响应 Content-Type
                 const mimeType = mime.lookup(fileName) || 'application/octet-stream';
 
-                // 🎯 [修复] 2. 为每个文件创建独立的 PutExtra 对象
+                // 配置上传参数：手动指定 mimeType 以跳过七牛的自动探测
                 const putExtra = new qiniu.form_up.PutExtra();
-                // 🎯 [修复] 3. 显式设置 mimeType
-                // 这样七牛云就会直接使用这个类型，而不会去触发 detectMime 进行猜测
                 putExtra.mimeType = mimeType;
 
+                // 生成上传凭证（覆盖模式：允许相同 key 的文件更新）
                 const putPolicy = new qiniu.rs.PutPolicy({
                     scope: `${options.bucket}:${key}`
                 });
                 const uploadToken = putPolicy.uploadToken(mac);
 
+                // 封装上传任务
                 const task = new Promise<void>((resolve, reject) => {
-                    // 传入我们配置好的 putExtra
-                    formUploader.put(uploadToken, key, content, putExtra, async (respErr, _respBody, respInfo) => {
-                        if (respErr) return reject(respErr);
-                        if (respInfo.statusCode !== 200) return reject(new Error(`Status: ${respInfo.statusCode}`));
-
-                        const cacheHeader = getCacheControlHeader(fileName);
-                        if (cacheHeader) {
-                            try {
-                                await bucketManager.changeHeaders(options.bucket, key, { 'Cache-Control': cacheHeader });
-                            } catch (e) { /* ignore */ }
+                    formUploader.put(uploadToken, key, content, putExtra, (respErr, _respBody, respInfo) => {
+                        if (respErr) {
+                            return reject(new Error(`[${fileName}] 上传失败: ${respErr.message}`));
                         }
-
-                        // 打印时可以顺便确认一下类型
-                        console.log(`✅ [${mimeType}] ${fileName} -> ${key}`);
+                        if (respInfo.statusCode !== 200) {
+                            return reject(new Error(`[${fileName}] 状态异常: ${respInfo.statusCode}`));
+                        }
+                        console.log(`✅ ${fileName} -> ${key} (${mimeType})`);
                         resolve();
                     });
                 });
@@ -100,12 +84,16 @@ export default function uploadBundleQiniu(options: QiniuOptions): Plugin {
                 uploadPromises.push(task);
             }
 
+            // 执行并发上传
             try {
                 await Promise.all(uploadPromises);
-                console.log(`✨ [Qiniu] 上传完成！\n`);
+                console.log(`\n✨ [Qiniu] 恭喜！所有文件（共 ${uploadPromises.length} 个）已成功上传到七牛云。\n`);
             } catch (error) {
-                console.error(`💥 [Qiniu] 上传失败`, error);
+                console.error(`\n💥 [Qiniu] 上传过程中发生错误:`);
+                console.error(error);
+                // 如果需要因为上传失败导致构建流程报错退出，可以抛出异常
+                throw error;
             }
         }
-    }
+    };
 }

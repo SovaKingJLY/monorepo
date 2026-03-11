@@ -26,8 +26,7 @@ function App() {
   useEffect(() => {//取出token,设置全局变量,和后端进行检验
     const init = async () => {
       try {
-        await loginCheck();
-        await getInfo();
+        await Promise.all([loginCheck(), getInfo()]);
         UserStore.setIsLogin(true);
         UserStore.setRole('管理员');//目前就管理员
         UserStore.setIsLoading(false);

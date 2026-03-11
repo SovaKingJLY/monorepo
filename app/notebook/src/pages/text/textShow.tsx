@@ -116,6 +116,8 @@ export default function TextShow() {
                                     <Image
                                         {...restAttribs}
                                         src={finalSrc}
+                                        loading={isBase64 ? 'eager' : 'lazy'}
+                                        decoding="async"
                                         preview={{
                                             src: restAttribs.src,
                                             onVisibleChange: (visible) => {

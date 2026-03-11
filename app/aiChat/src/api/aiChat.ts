@@ -209,7 +209,6 @@ const getStreamData = async (
     signal?: AbortSignal
 ) => {
     const URL = `${import.meta.env.VITE_BASE_URL}/api/chat/stream`;
-    // 假设你使用 Zustand 或类似的 Store 管理 Token
     const accessToken = (window as any).useUserStore?.getState()?.accessToken || "";
 
     // --- 缓冲区状态 ---
@@ -240,7 +239,7 @@ const getStreamData = async (
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
+                "satoken": accessToken
             },
             body: JSON.stringify({ messages }),
             signal

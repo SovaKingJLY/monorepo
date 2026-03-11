@@ -146,7 +146,7 @@ const getStreamData = async (
             const chunk = decoder.decode(value, { stream: true });
             buffer += chunk;
 
-            // Spring WebFlux SSE 默认格式也是 "data: {...}\n\n"
+            //注意这里是按照ascii10号字符进行换行的，你可以发现这个和其他字符串的颜色不一样
             const lines = buffer.split("\n");
             buffer = lines.pop() || '';
 

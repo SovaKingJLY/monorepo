@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosResponse } from 'axios';
+import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { message } from 'antd';
 import useUserStore from '@/store/user';
 
@@ -25,11 +25,49 @@ const refreshHttp = axios.create({
     withCredentials: true,
 });
 
+let preRequestRenewPromise: Promise<string> | null = null;
+
+export const renewAccessTokenBeforeRequest = async (): Promise<string | null> => {
+    const { accessToken, setAccessToken, setRole, setIsLogin } = useUserStore.getState();
+
+    if (!accessToken) {
+        return null;
+    }
+
+    if (!preRequestRenewPromise) {
+        preRequestRenewPromise = renewTokenRequest().finally(() => {
+            preRequestRenewPromise = null;
+        });
+    }
+
+    try {
+        const newToken = await preRequestRenewPromise;
+        setAccessToken(newToken);
+        return newToken;
+    } catch (error) {
+        setAccessToken('');
+        setRole('');
+        setIsLogin(false);
+        return Promise.reject(error);
+    }
+};
+
 // 请求拦截器
-http.interceptors.request.use(config => {//发送时的拦截器,加上token
+http.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {//发送时的拦截器,加上token
+    const retryableConfig = config as InternalAxiosRequestConfig & RetryableConfig;
+
+    if (!shouldSkipRefresh(retryableConfig.url)) {
+        const renewedToken = await renewAccessTokenBeforeRequest();
+        if (renewedToken) {
+            (config.headers as any)['satoken'] = renewedToken;
+            return config;
+        }
+    }
+
     const accessTokentoken = useUserStore.getState().accessToken;
-    if (accessTokentoken)
-        config.headers['satoken'] = accessTokentoken;
+    if (accessTokentoken) {
+        (config.headers as any)['satoken'] = accessTokentoken;
+    }
     return config;
 });
 

@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// T 是返回的数据类型
-type RequestResult<T> = ApiResponse<T> | T;
-
-export function useRequest<T>(service: () => Promise<RequestResult<T>>, options = { manual: false }) {
+export function useRequest<T>(service: () => Promise<T>, options = { manual: false }) {
     const [data, setData] = useState<T | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<any>(null);
@@ -13,11 +10,7 @@ export function useRequest<T>(service: () => Promise<RequestResult<T>>, options 
         setIsLoading(true);
         setError(null);
         try {
-            const res = await service();
-            const resultData =
-                res && typeof res === 'object' && 'data' in (res as Record<string, unknown>)
-                    ? (res as ApiResponse<T>).data
-                    : (res as T);
+            const resultData = await service();
 
             setData(resultData);
             return resultData;
