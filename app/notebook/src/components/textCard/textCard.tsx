@@ -43,11 +43,8 @@ export default function TextCard(props: props) {
         setIsCancelPinLoading((state) => state.filter((item) => item != id));
     }
     return <>
-        <div>
+        <div className={styles.cardWrapper}>
             <div className={styles.chapterTitle} onClick={() => { open() }}>{singleItem.tags}</div>
-            <div>
-
-            </div>
             {(props.texts || []).map((item) => {
                 return <div className={`${styles.mainContent} `} key={item.id} onClick={() => { jump(item.id) }}>
                     <div className={`${styles.textTitle} ${openState ? styles.mainContentOpen : ''}`}>

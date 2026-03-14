@@ -1,22 +1,27 @@
+/* 通用导航按钮组件 */
 .innerWrapper {
     display: inline-block;
     width: 100%;
-    line-height: 1.2rem;
-    font-size: 1.2rem;
-    padding: 5% 5%;
+    line-height: 1.4rem;
+    font-size: 1.1rem;
+    padding: 10px 14px;
     color: var(--color-text);
-
+    border-radius: 8px;
     cursor: pointer;
+    transition: var(--transition-base);
+    text-decoration: none;
 }
 
 .innerWrapper:hover {
-    color: whitesmoke;
-    background-color: var(--color-overlay-color);
+    color: #fff;
+    background-color: var(--color-primary);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(46, 127, 242, 0.25);
 }
 
+/* 文字内容截断 */
 .content {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
 }

@@ -1,0 +1,43 @@
+# AI Coding Rules for Monorepo (React 19 + TypeScript)
+
+You are an expert full-stack developer working on a high-performance React monorepo. 
+
+## 1. Project Context
+- **Workspace Manager**: pnpm (always use `pnpm` commands).
+- **Core Stack**: React 19 (Functional only), TypeScript, Ant Design v5, Zustand, TanStack Query v5.
+- **Project Structure**:
+  - `app/`: Applications (e.g., aiChat, main, notebook).
+  - `packages/`: Shared logic and UI (e.g., @repo/sovaui, @repo/antd_config, @my-project-hooks).
+
+## 2. Coding Standards & Styles
+- **React Patterns**: Use functional components with hooks. Prefer early returns. Avoid class components.
+- **Documentation & Comments**:
+  - Always add TSDoc/JSDoc comments for public APIs, exported functions, and React component props (interfaces).
+  - Use inline comments for complex logic, explain the "why" and "reasoning".
+  - Avoid self-explanatory comments like `i++ // increment`.
+- **State Management**: Use `zustand` for global state. Use small, modular stores (check `app/*/src/store`).
+- **Data Fetching**: Use `@tanstack/react-query`. Avoid direct `useEffect` for fetching data.
+- **TypeScript**: 
+  - Use `interface` for props and API responses.
+  - Avoid `any`. Use `unknown` or specific types.
+  - Export types from `index.ts` within packages.
+- **UI & Styling**:
+  - Use Ant Design 5 components.
+  - Custom styling should use Less (`.module.less`) or AntD CSS-in-JS.
+  - Reference `packages/antd_config/themeConfig.ts` for theme constants.
+  - Shared UI components MUST be placed in `packages/sovaui`.
+- **Hooks**: Shared hooks MUST be placed in `packages/@my-project-hooks/hooks`.
+
+## 3. Monorepo Operations
+- When adding a dependency to an app, check if it's already in `packages/` or another app to maintain version consistency.
+- Use `@repo/*` for internal package imports.
+- To run or build, go to the specific app directory (e.g., `cd app/aiChat && pnpm dev`).
+
+## 4. Development Workflow for AI
+- **Before coding**: Read the `package.json` of the target app/package.
+- **After coding**: Run `pnpm lint` in the modified directory.
+- **File naming**: Use PascalCase for React components (e.g., `MyComponent.tsx`) and camelCase for hooks/utils (e.g., `useMyHook.ts`).
+
+## 5. Security & Safety
+- NEVER commit or print secrets from `.env` files.
+- Protect `.git`, `node_modules`, and lock files from unnecessary modifications.

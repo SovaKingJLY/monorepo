@@ -297,7 +297,7 @@ export default function TextShow() {
                         position: 'fixed',
                         top: selectionPop.y,
                         left: selectionPop.x,
-                        transform: 'translate(-50%, -45px)', // 保持位置计算不变
+                        transform: 'translate(-50%, -45px)',
                         zIndex: 1000,
                         backgroundColor: '#333',
                         color: '#fff',
@@ -306,13 +306,12 @@ export default function TextShow() {
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                         display: 'flex',
                         gap: '8px',
-                        alignItems: 'center', // 确保垂直居中
+                        alignItems: 'center',
                         cursor: 'default',
                         userSelect: 'none'
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
                 >
-                    {/* --- 修改开始：引用按钮 --- */}
                     <div
                         onClick={handleQuote}
                         style={{
@@ -326,7 +325,6 @@ export default function TextShow() {
                     >
                         引用
                     </div>
-
                     {/* 小三角箭头 */}
                     <div style={{
                         position: 'absolute',
@@ -342,25 +340,30 @@ export default function TextShow() {
                 </div>
             )}
 
-            {(isLoading || isParsing) ? <Skeleton active paragraph={{ rows: 10 }} /> : (
-                <div className={styles.sumWrapper}>
-                    <div className={styles.titleWrapper}>
-                        <div className={styles.tag}>{text?.tag}</div>
-                        <div className={styles.title}>{text?.title}</div>
-                    </div>
-                    {userStore.role == '管理员' ? <Button onClick={() => jump()}>修改</Button> : ''}
-                </div>
-            )}
+            {/* 整篇文章的卡片容器 — 与背景区分 */}
+            <div className={styles.base}>
+                {(isLoading || isParsing) ? <Skeleton active paragraph={{ rows: 10 }} /> : (
+                    <>
+                        <div className={styles.sumWrapper}>
+                            <div className={styles.titleWrapper}>
+                                <div className={styles.tag}>{text?.tag}</div>
+                                <div className={styles.title}>{text?.title}</div>
+                            </div>
+                            {userStore.role == '管理员' ? <Button onClick={() => jump()}>修改</Button> : ''}
+                        </div>
 
-            {!(isLoading || isParsing) && parsedContent && (
-                <div
-                    ref={textContainerRef} // 绑定 ref
-                    style={{ fontSize: `${textFontSize}rem` }}
-                    className={styles.text}
-                >
-                    {parsedContent}
-                </div>
-            )}
+                        {parsedContent && (
+                            <div
+                                ref={textContainerRef}
+                                style={{ fontSize: `${textFontSize}rem` }}
+                                className={styles.text}
+                            >
+                                {parsedContent}
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </>
     );
 }

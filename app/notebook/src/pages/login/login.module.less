@@ -1,23 +1,30 @@
-// @import '@/css/font_css/font_css.less';
+@import '@/css/commonStyles/commonStyles.module.less';
 
-// .title {
-//     .titleFont();
-// }
+/* 登录/注册页容器 */
+.title {
+    display: flex;
+    justify-content: center;
+    padding: 48px 24px;
+    background-color: var(--color-bg-base);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-card);
+    max-width: 600px;
+    margin: 48px auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Tab 切换淡入动画 */
+.fadeContent {
+    animation: fadeIn 0.4s ease-in-out;
+}
 
 @keyframes fadeIn {
     from {
         opacity: 0;
         transform: translateY(10px);
-        /* 可选：稍微向下位移一点再浮上来 */
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.fadeContent {
-    /* 应用动画，持续 0.5秒 */
-    animation: fadeIn 0.5s ease-in-out;
 }

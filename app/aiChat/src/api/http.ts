@@ -83,7 +83,7 @@ http.interceptors.response.use(//接收时的拦截器
             return response.data;
         }
 
-        if (code === 401) {
+        if (code === 401) {//注意这里是401错误，也就是token错误，403错误是无权限
             const config = response.config as RetryableConfig;
 
             // 续期接口/登出接口本身 401，不再继续续期

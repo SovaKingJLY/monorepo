@@ -29,7 +29,7 @@ const useUserStore = create<userStore>()(
                 set({ role: newRole });
             },
             login: async (params) => {
-                const res = await loginRequest(params);  
+                const res = await loginRequest(params);
                 if (params.remember) {
                     set({
                         accessToken: res.accessToken,
@@ -42,7 +42,6 @@ const useUserStore = create<userStore>()(
             },
             logout: async () => {
                 set({ accessToken: "", role: "", isLogin: false });
-                console.log("注销");
                 await logoutAdmin();
             },
             setIsLoading: (newState: boolean) => {

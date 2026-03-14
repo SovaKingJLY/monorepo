@@ -1,22 +1,35 @@
 import { theme, type ThemeConfig } from "antd";
 import useDarkStore from "../../store/darkMode";
+
+/**
+ * notebook 本地主题配置
+ * 与 packages/antd_config/themeConfig.ts 保持一致的设计 token
+ */
 const getThemeConfig = () => {
     const isDark = useDarkStore.getState().isDark;
 
     let themeConfig: ThemeConfig = {
-        // algorithm: theme.darkAlgorithm,//算法部分，通过指定某个算法，能够计算出最终的颜色
-        token: {//token 负责全局公共样式
+        token: {
             colorPrimary: '#2E7FF2',
-            borderRadius: 5,
+            borderRadius: 10,
             fontSize: 16,
-            colorBgSpotlight: "#868686ff"
+            colorBgSpotlight: "#868686ff",
+            borderRadiusLG: 12,
+            borderRadiusSM: 6,
         },
-        components: {//对某个组件单独设置
+        components: {
             Input: {
-
+                borderRadius: 8,
             },
             Button: {
-
+                borderRadius: 8,
+            },
+            Card: {
+                borderRadiusLG: 12,
+            },
+            Tabs: {
+                itemHoverColor: '#2E7FF2',
+                itemActiveColor: '#2E7FF2',
             },
             FloatButton: {
                 colorPrimary: "#f5f5f5",
@@ -29,11 +42,7 @@ const getThemeConfig = () => {
             algorithm: theme.darkAlgorithm,
             ...themeConfig,
         }
-    } else {
-
     }
     return themeConfig;
 }
 export default getThemeConfig;
-
-

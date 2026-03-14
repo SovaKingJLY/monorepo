@@ -1,15 +1,35 @@
-@homeTopPadding: 1%;
+/* 公共样式变量和 mixins */
+@homeTopPadding: 24px;
 
-
+/* 通用文字颜色 mixin */
 .fontColor {
     color: var(--color-text);
 }
 
+/* 卡片容器背景 — 带圆角和过渡 */
 .containerBgColor {
     background-color: var(--color-bg-base);
     color: var(--color-text);
+    border-radius: var(--border-radius-lg);
+    transition: var(--transition-base);
 }
 
+/* 卡片悬浮阴影 — 多层柔和阴影 + 微上浮 */
 .containerShadow {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+/* 卡片基础样式 — 综合圆角 + 背景 + 阴影 + 过渡 */
+.cardBase {
+    background-color: var(--color-bg-base);
+    color: var(--color-text);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-base);
+
+    &:hover {
+        box-shadow: var(--shadow-card-hover);
+        transform: translateY(-2px);
+    }
 }

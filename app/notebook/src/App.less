@@ -1,10 +1,20 @@
+/* 全局基础样式 */
 * {
   box-sizing: border-box;
-  font-family: Microsoft YaHei
+  /* 现代字体栈：优先使用系统 UI 字体，回退到中文优先字体 */
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    sans-serif;
 }
 
 body {
-  margin: 0px;
+  margin: 0;
 }
 
 html {
@@ -12,12 +22,26 @@ html {
   height: 100%;
 }
 
+/* 美化滚动条 — 窄条 + 圆角 + 半透明 */
 html::-webkit-scrollbar {
-  width: 0px;
-  height: 0;
+  width: 6px;
+  height: 6px;
 }
 
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* AI 聊天窗口悬浮时锁定 body 滚动 */
 body:has(.aiChatWrapper:hover) {
   overflow: hidden;
-  /* 锁死 body */
 }

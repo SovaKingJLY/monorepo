@@ -1,25 +1,63 @@
 @import '@/css/commonStyles/commonStyles.module.less';
 
+/* 每个章节的卡片容器 — 与背景区分 */
+.cardWrapper {
+    background-color: var(--color-bg-base);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 20px 24px;
+    transition: var(--transition-base);
+
+    &:hover {
+        box-shadow: var(--shadow-card-hover);
+    }
+}
+
+/* 章节/标签标题 */
 .chapterTitle {
     width: 100%;
     cursor: pointer;
     color: var(--color-text);
     user-select: none;
-    font-size: 2rem;
-    font-weight: 500;
-    padding: 1% 0px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    padding: 8px 0;
+    letter-spacing: 0.02em;
+    transition: color 0.2s ease;
+    position: relative;
+
+    /* 标题左侧装饰条 */
+    &::before {
+        content: '';
+        position: absolute;
+        left: -16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60%;
+        border-radius: 2px;
+        background-color: var(--color-primary);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
 }
 
 .chapterTitle:hover {
-    color: #409EFF;
+    color: var(--color-primary);
+
+    &::before {
+        opacity: 1;
+    }
 }
 
+/* 文章标题行 — 默认折叠态 */
 .textTitle {
-    height: 0rem;
-    font-size: 0px;
+    height: 0;
+    font-size: 0;
     width: 100%;
     cursor: pointer;
     .fontColor;
+    overflow: hidden;
 
     .setPin {
         display: none;
@@ -28,11 +66,11 @@
     .setCancelPin {
         display: inline-block;
     }
-
 }
 
+/* 悬浮态 — 显示操作按钮 */
 .textTitle:hover {
-    color: #409EFF;
+    color: var(--color-primary);
 
     .setPin {
         display: inline-block;
@@ -43,32 +81,51 @@
     }
 }
 
+/* 文章条目容器 */
 .mainContent {
     width: 100%;
     margin: 0 auto;
 }
 
+/* 展开态 */
 .mainContentOpen {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     height: auto;
-    line-height: 3rem;
+    line-height: 2.6rem;
     display: block;
-    transition: height 0.2s linear;
-    transition: font-size 0.1s cubic-bezier(.29, .08, 0, .98);
-    padding: 0 20px;
+    transition:
+        height 0.25s ease,
+        font-size 0.15s cubic-bezier(.29, .08, 0, .98);
+    padding: 2px 20px;
+    border-radius: 8px;
     .containerBgColor;
+    margin: 2px 0;
+
+    &:hover {
+        background-color: var(--color-bg-elevated);
+    }
 }
 
+/* 标题与操作按钮的 flex 行 */
 .mainTitle {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
-.setPin:hover {
-    color: red;
+/* 图钉按钮样式 */
+.setPin {
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: var(--color-primary);
+    }
 }
 
+.setCancelPin {
+    transition: color 0.2s ease;
 
-.setCancelPin:hover {
-    color: red;
+    &:hover {
+        color: #ff4d4f;
+    }
 }
