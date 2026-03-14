@@ -32,35 +32,30 @@ export default function MainLayout() {
     const setPinText = async (id: number) => {
         try {
             await setPinTextHttp(id);
-            setTexts(texts.map((i: Text) => {
+            setTexts((prevTexts) => prevTexts.map((i: Text) => {
                 if (i.id == id) {
-                    return {
-                        ...i,
-                        state: '快速访问',
-                    }
+                    return { ...i, state: '快速访问' }
                 }
                 return i;
-            }))
+            }));
             queryClient.invalidateQueries({ queryKey: ['allPinTexts'] });
         } catch {
-
+            // Error handling could be added here if AntD message is available
         }
     }
+
     const setCancelPinText = async (id: number) => {
         try {
             await setUnPinTextHttp(id);
-            setTexts(texts.map((i: Text) => {
+            setTexts((prevTexts) => prevTexts.map((i: Text) => {
                 if (i.id == id) {
-                    return {
-                        ...i,
-                        state: '',
-                    }
+                    return { ...i, state: '' }
                 }
                 return i;
-            }))
+            }));
             queryClient.invalidateQueries({ queryKey: ['allPinTexts'] });
         } catch {
-
+            // Error handling could be added here if AntD message is available
         }
     }
 

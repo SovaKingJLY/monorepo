@@ -13,4 +13,17 @@
     display: flex;
     flex-direction: column;
     .cardBase;
+
+    @media (max-width: 1200px) {
+        flex: 4;
+    }
+
+    @media (max-width: 1024px) {
+        flex: 3.5;
+    }
+
+    /* 移动端隐藏右侧边栏，因为它是次要信息 */
+    @media (max-width: 768px) {
+        display: none;
+    }
 }

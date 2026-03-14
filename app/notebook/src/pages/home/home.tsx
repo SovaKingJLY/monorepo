@@ -1,5 +1,5 @@
 import styles from './home.module.less';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { InfoContext } from '../../layout/mainLayout/mainLayout';
 import TextCard from '../../components/textCard/textCard';
 import { textKeyList } from '../../utils/textKeyList';
@@ -8,7 +8,7 @@ import { Skeleton } from 'antd';
 
 export default function Home() {
     const context = useContext(InfoContext);
-    const keyMap = textKeyList(context.texts);
+    const keyMap = useMemo(() => textKeyList(context.texts), [context.texts]);
     const location = useLocation();
     useEffect(() => {
         if (location.pathname == '/')

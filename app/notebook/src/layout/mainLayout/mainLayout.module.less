@@ -1,12 +1,28 @@
 @import '@/css/commonStyles/commonStyles.module.less';
 
-/* 主布局容器 — 三栏弹性布局 */
+/* 主布局容器 — 响应式三栏弹性布局 */
 .base {
-    width: 70%;
+    width: 75%;
     display: flex;
     flex-direction: row;
     margin: 0 auto;
     column-gap: @homeTopPadding;
     padding-top: 24px;
     padding-bottom: 48px;
+    transition: width 0.3s ease;
+
+    /* 平板端适配 */
+    @media (max-width: 1200px) {
+        width: 90%;
+        column-gap: 16px;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+        width: 95%;
+        flex-direction: column;
+        row-gap: 16px;
+        padding-top: 12px;
+        padding-bottom: 24px;
+    }
 }
