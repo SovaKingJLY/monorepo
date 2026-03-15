@@ -45,3 +45,10 @@ html::-webkit-scrollbar-thumb:hover {
 body:has(.aiChatWrapper:hover) {
   overflow: hidden;
 }
+
+/* --- 修复 AntD 弹窗/预览时的布局抖动 --- */
+/* 因为开启了 scrollbar-gutter: stable，不需要 Ant Design 再动态减去 body 的宽度 */
+html body {
+  width: 100% !important;
+  padding-right: 0 !important;
+}

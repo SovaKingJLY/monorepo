@@ -120,10 +120,6 @@ export default function TextShow() {
                                         decoding="async"
                                         preview={{
                                             src: restAttribs.src,
-                                            onVisibleChange: (visible) => {
-                                                const html = document.documentElement;
-                                                html.style.scrollbarGutter = visible ? 'auto' : 'stable';
-                                            },
                                         }}
                                     />
                                 </div>
